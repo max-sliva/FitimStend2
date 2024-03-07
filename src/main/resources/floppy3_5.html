@@ -3,13 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Дискета 3.5″</title>
-    <link rel="stylesheet" href="myStyles.css">
+<!--    <link rel="stylesheet" href="myStyles.css">-->
+    <style type="text/css">
+        .float-img {
+            float: right;
+            clear: right;
+            margin-left: 10px;
+            margin-right: 5px;
+            border: solid black 2 px;
+            padding: 2px;
+        }
+        .img-with-text {
+            text-align: justify;
+            width: [width of img];
+        }
+
+        .img-with-text img {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-    <picture class="float-img"> 
-        <img src="floppy3_5.jpg" >
-        <figcaption style="text-align: center;">Внешний вид дискеты</figcaption> 
-    </picture> 
+<!--    <picture >-->
+<!--        <img src="floppy3_5.jpg" style="float:right">-->
+<!--        <figcaption style="text-align: center;">Внешний вид дискеты</figcaption> -->
+<!--    </picture> -->
 <article>
     <header><h2>Дискета 3.5″</h2></header>
     Классический вид дискеты. Принципиальное отличие дискеты 3½ дюйма – жёсткий пластмассовый корпус.
@@ -17,6 +36,10 @@
     которая находится в центре дискеты. Механизм дисковода захватывает металлическую втулку, а отверстие в ней позволяет
     правильно позиционировать дискету, поэтому отпала необходимость делать для этого отверстие непосредственно в магнитном диске.
     <br> <br>
+    <div class="img-with-text" style="float:right">
+        <img src="floppy3_5.jpg" alt="sometext" />
+        <p>Внешний вид дискеты</p>
+    </div>
     В отличие от 8- и 5-дюймовых дискет, окно для головок дискеты 3½ дюйма закрыто шторкой из металла или пластмассы,
     которая сдвигается в сторону специальным рычагом во время установки дискеты в дисковод. Защита от записи производится
     небольшой сдвигающейся пластиковой шторкой в нижнем левом углу дискеты — открытое окошко соответствует активированной защите.

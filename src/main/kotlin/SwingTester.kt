@@ -9,6 +9,9 @@ import javax.swing.JEditorPane
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JScrollPane
+import javax.swing.text.html.HTMLEditorKit
+import javax.swing.text.html.StyleSheet
+
 
 object SwingTester {
     @JvmStatic
@@ -32,6 +35,12 @@ object SwingTester {
 
         val jEditorPane = JEditorPane()
         jEditorPane.isEditable = false
+        val kit = HTMLEditorKit()
+        jEditorPane.editorKit = kit
+        val styleSheet: StyleSheet = kit.styleSheet
+        styleSheet.addRule("h2 {color: blue;}");
+        styleSheet.addRule("img {float:right;}");
+
         val url: URL = SwingTester::class.java.getResource("floppy3_5.html")
 
         try {

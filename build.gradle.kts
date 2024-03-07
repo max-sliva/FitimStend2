@@ -13,6 +13,10 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
 }
+//
+//javafx {
+//    version = "19"
+//}
 
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
@@ -30,6 +34,7 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
+//            modules("java.instrument", "java.net.http", "jdk.jfr", "jdk.jsobject", "jdk.unsupported", "jdk.unsupported.desktop", "jdk.xml.dom")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "FitimStend2"
             packageVersion = "1.0.0"

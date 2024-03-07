@@ -12,6 +12,8 @@ import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JPanel
 import androidx.compose.foundation.layout.size
+
+
 //import com.kevinnzou.sample.MainWebView
 
 @Composable
@@ -41,8 +43,24 @@ fun actionButton(
     button.addActionListener { action() }
     return button
 }
+
 @Composable
+fun Button(text: String = "", action: (() -> Unit)? = null) {
+    Button(
+        modifier = Modifier.size(270.dp, 40.dp),
+        onClick = { action?.invoke() }
+    ) {
+        Text(text)
+    }
+}
+@Composable //todo сделать обычными объектами: текстом и картинками
 fun MyContent(){
+//https://github.com/oleksandrbalan/textflow
+
+}
+
+@Composable
+fun MyContent2(){
     var text by remember { mutableStateOf("Hello, World!") }
     // Declare a string that contains a url
 //    val mUrl = "floppy5.html"
