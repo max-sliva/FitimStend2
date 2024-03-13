@@ -1,25 +1,18 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import java.awt.Component
-import javax.swing.BoxLayout
-import javax.swing.JButton
-import javax.swing.JPanel
-import androidx.compose.foundation.layout.size
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
 
 
 //import com.kevinnzou.sample.MainWebView
 
 @Composable
-@Preview
 fun App() {
-    var text by remember { mutableStateOf("Hello, World!") }
+//    var text by remember { mutableStateOf("Hello, World!") }
 
     MaterialTheme {
 //        Button(onClick = {
@@ -28,78 +21,50 @@ fun App() {
 //            Text(text)
 //        }
         Scaffold(
-            topBar = { TopAppBar(title = { Text("НВГУ | ИТ Музей", color = Color.White) }, backgroundColor = Color(0xff0f9d58)) },
+            topBar = {
+                TopAppBar(title = { Text("НВГУ ФИТМ | ИТ Музей", color = Color.White) },
+//                backgroundColor = Color(0xff0f9d58))
+                backgroundColor = Color(0xff1e63b2))
+            },
             content = { MyContent() }
         )
     }
 }
 
-fun actionButton(
-    text: String,
-    action: () -> Unit
-): JButton {
-    val button = JButton(text)
-    button.alignmentX = Component.CENTER_ALIGNMENT
-    button.addActionListener { action() }
-    return button
-}
-
-@Composable
-fun Button(text: String = "", action: (() -> Unit)? = null) {
-    Button(
-        modifier = Modifier.size(270.dp, 40.dp),
-        onClick = { action?.invoke() }
-    ) {
-        Text(text)
-    }
-}
 @Composable //todo сделать обычными объектами: текстом и картинками
 fun MyContent(){
 //https://github.com/oleksandrbalan/textflow
-
-}
-
-@Composable
-fun MyContent2(){
     var text by remember { mutableStateOf("Hello, World!") }
-    // Declare a string that contains a url
-//    val mUrl = "floppy5.html"
 
-    val counter = remember { mutableStateOf(0) }
-
-    val inc: () -> Unit = { counter.value++ }
-    val dec: () -> Unit = { counter.value-- }
-    SwingPanel(
-        background = Color.White,
-        modifier = Modifier.size(270.dp, 90.dp),
-        factory = {
-            JPanel().apply {
-                //todo add JEditorPane to load html files
-                layout = BoxLayout(this, BoxLayout.Y_AXIS)
-                add(actionButton("1. Swing Button: decrement", dec))
-                add(actionButton("2. Swing Button: decrement", dec))
-                add(actionButton("3. Swing Button: decrement", dec))
-            }
-        }
-    )
-    // Adding a WebView inside AndroidView
-    // with layout as full screen
-//    AndroidView(factory = {
-//        WebView(it).apply {
-//            layoutParams = ViewGroup.LayoutParams(
-//                ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.MATCH_PARENT
-//            )
-//            webViewClient = WebViewClient()
-//            loadUrl(mUrl)
-//        }
-//    }, update = {
-//        it.loadUrl(mUrl)
-//    })
+    Button(onClick = {
+            text = "Hello, Desktop!"
+    }) {
+            Text(text)
+    }
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    val state = rememberWindowState(
+        placement = WindowPlacement.Fullscreen
+    )
+
+    Window(
+        onCloseRequest = ::exitApplication,
+        undecorated = true,
+        alwaysOnTop = true,
+        state = state
+    ) {
         App()
     }
 }
+
+
+//@Composable
+//fun Button(text: String = "", action: (() -> Unit)? = null) {
+//    Button(
+//        modifier = Modifier.size(270.dp, 40.dp),
+//        onClick = { action?.invoke() }
+//    ) {
+//        Text(text)
+//    }
+//}
