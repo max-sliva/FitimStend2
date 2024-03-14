@@ -9,9 +9,9 @@ group = "com.example"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
+    mavenCentral()
 }
 //
 //javafx {
@@ -26,6 +26,8 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation("io.github.java-native:jssc:2.9.6")
     implementation("org.json:json:20231013")
+//    implementation("io.github.oleksandrbalan:textflow:1.1.2")
+//    implementation("dev.romainguy:combo-breaker:0.9.0")
 }
 //to make exe run in terminal:
 // ./gradlew runDistributable
