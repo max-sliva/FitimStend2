@@ -1,20 +1,15 @@
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +17,9 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import java.io.File
+
+//import java.io.File
 
 //import com.kevinnzou.sample.MainWebView
 
@@ -30,6 +28,14 @@ fun App() {
 //    var text by remember { mutableStateOf("Hello, World!") }
     val curPath = System.getProperty("user.dir")
     println("user dir = $curPath")
+    val itemsDir = "$curPath/items/copy_Rarit"
+    val dirsList = listDirsUsingDirectoryStream(itemsDir)
+    println("dirsList = $dirsList")
+    //var setOfItems =
+    dirsList.forEach {
+        val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
+        println("for $it: $filesList")
+    }
     val fitimLogo = "fitim.png"
     val fitimLogoWhite = "fitim_white.png"
     val nvsuLogoWhite = "NVSU_white.png"
@@ -45,29 +51,7 @@ fun App() {
 //            topBar = {
 //                TopAppBar(title = {
         Column(Modifier.fillMaxSize()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-//                        .padding(20.dp)
-                    .background(Color(0xff1e63b2))
-            ) {
-                Image(
-//нужен import androidx.compose.foundation.Image
-                    painter = painterResource(nvsuLogoWhite), //указываем источник изображения
-                    contentDescription = "", //можно вставить описание изображения
-                    contentScale = ContentScale.Fit, //параметры масштабирования изображения
-                )
-                Text("НВГУ ФИТМ | ИТ Музей", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
-                Image(
-//нужен import androidx.compose.foundation.Image
-                    painter = painterResource(fitimLogoWhite), //указываем источник изображения
-                    contentDescription = "", //можно вставить описание изображения
-                    contentScale = ContentScale.Fit, //параметры масштабирования изображения
-                )
-            }
+            UpperBar(nvsuLogoWhite, fitimLogoWhite)
             MyContent()
         }
 //                },
@@ -79,46 +63,61 @@ fun App() {
     }
 }
 
-@Composable //todo сделать обычными объектами: текстом и картинками
-fun MyContent(){
-//https://github.com/oleksandrbalan/textflow
-//    TextFlow(
-//        text = "Text Flow allows to display a text which wraps around an image (or any other Composable)",
-//        modifier = Modifier.width(220.dp),
-//        obstacleAlignment = TextFlowObstacleAlignment.TopStart,
-//        obstacleContent = {
-//            Icon(
-//                imageVector = Icons.Default.Done,
-//                contentDescription = null,
-//                modifier = Modifier.padding(4.dp)
-//            )
-//        }
-//    )
-    val annotatedString = buildAnnotatedString {
-        append("This is text ")
-        appendInlineContent(id = "imageId")
-        append(" with a call icon")
+@Composable
+private fun UpperBar(nvsuLogoWhite: String, fitimLogoWhite: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+//                        .padding(20.dp)
+            .background(Color(0xff1e63b2))
+    ) {
+        Image(
+            painter = painterResource(nvsuLogoWhite), //указываем источник изображения
+            contentDescription = "", //можно вставить описание изображения
+            contentScale = ContentScale.Fit, //параметры масштабирования изображения
+        )
+        Text("НВГУ ФИТМ | ИТ Музей", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Image(
+            painter = painterResource(fitimLogoWhite), //указываем источник изображения
+            contentDescription = "", //можно вставить описание изображения
+            contentScale = ContentScale.Fit, //параметры масштабирования изображения
+        )
     }
-    val inlineContentMap = mapOf(
-        "imageId" to InlineTextContent(
-            Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.TextCenter)
-        ) {
-            Image(
-                imageVector = Icons.Default.Call,
-                modifier = Modifier.fillMaxSize(),
-                contentDescription = ""
-            )
-        }
-    )
+}
 
-    Text(annotatedString, inlineContent = inlineContentMap)
+@Composable //todo сделать обычными объектами: текстом и картинками
+fun MyContent() {
+    val curPath = System.getProperty("user.dir")
+    println("user dir = $curPath")
+    var text = File("$curPath/items/copy_Rarit/alfa/Кинокамера_Киев-16_Альфа_Полуавтомат.txt").readText().replace("\t","   ")
+//    println(text)
+    println()
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .border(BorderStroke(2.dp, Color.Blue))
+    ) {
+        Text(
+            text, fontSize = 20.sp,
+            modifier = Modifier.weight(3f)
+        )
+        Image(
+            modifier = Modifier.weight(1f),
+            painter = painterResource("items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg"), //указываем источник изображения
+            contentDescription = "", //можно вставить описание изображения
+//                contentScale = ContentScale.FillWidth, //параметры масштабирования изображения
+        )
+    }
 }
 
 fun main() = application {
     val state = rememberWindowState(
         placement = WindowPlacement.Fullscreen
     )
-
+    listFilesUsingJavaIO("/")
     Window(
         onCloseRequest = ::exitApplication,
 //        undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
