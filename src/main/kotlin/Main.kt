@@ -8,7 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,7 +20,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import java.io.File
+import java.io.*
 
 //import java.io.File
 
@@ -32,9 +35,25 @@ fun App() {
     val dirsList = listDirsUsingDirectoryStream(itemsDir)
     println("dirsList = $dirsList")
     //var setOfItems =
+//    var itemsMap = mutableMapOf<String, String>()
+    var itemsMap2 = mutableMapOf<String, Set<String>>()
     dirsList.forEach {
         val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
-        println("for $it: $filesList")
+        val txtFile = filesList.find { it.contains(".txt") }
+        val imgFile = filesList.find { it!=txtFile }
+        val txtFilePath = "$itemsDir/$it/$txtFile"
+        val imgFilePath = "$itemsDir/$it/$imgFile"
+        val filesSet = setOf(txtFilePath, imgFilePath)
+        val file = File(txtFilePath)
+        val ioStream = BufferedReader(FileReader(file))
+        ioStream.readLine()
+        val s = ioStream.readLine()
+//        println("for $it: $filesList caption = $s")
+//        itemsMap[s] = "$itemsDir/$it"
+        itemsMap2[s] = filesSet
+    }
+    itemsMap2.forEach{//todo по этому мапу делаем список ключей и показываем в окне в виде выпадающего списка
+        println("${it.key} : ${it.value}")
     }
     val fitimLogo = "fitim.png"
     val fitimLogoWhite = "fitim_white.png"
@@ -94,22 +113,31 @@ fun MyContent() {
     println("user dir = $curPath")
     var text = File("$curPath/items/copy_Rarit/alfa/Кинокамера_Киев-16_Альфа_Полуавтомат.txt").readText().replace("\t","   ")
 //    println(text)
+    val file = File("$curPath/items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg")
+    val imageBitmap: ImageBitmap = remember(file) {
+        loadImageBitmap(file.inputStream())
+    }
     println()
     Row(
         modifier = Modifier
             .fillMaxSize()
             .border(BorderStroke(2.dp, Color.Blue))
+            .padding(10.dp)
     ) {
         Text(
             text, fontSize = 20.sp,
             modifier = Modifier.weight(3f)
         )
         Image(
-            modifier = Modifier.weight(1f),
-            painter = painterResource("items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg"), //указываем источник изображения
-            contentDescription = "", //можно вставить описание изображения
-//                contentScale = ContentScale.FillWidth, //параметры масштабирования изображения
+            painter = BitmapPainter(image = imageBitmap),
+            contentDescription = null
         )
+//        Image(
+//            modifier = Modifier.weight(1f),
+//            painter = painterResource("items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg"), //указываем источник изображения
+//            contentDescription = "", //можно вставить описание изображения
+////                contentScale = ContentScale.FillWidth, //параметры масштабирования изображения
+//        )
     }
 }
 
