@@ -1,10 +1,8 @@
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,9 +26,9 @@ import java.io.*
 
 @Composable
 fun App() {
-//    var text by remember { mutableStateOf("Hello, World!") }
     val curPath = System.getProperty("user.dir")
     println("user dir = $curPath")
+    var filesSet = remember { mutableStateListOf("$curPath/welcome.txt", "$curPath/НВГУ_лого с корпусом.png") }
     val itemsDir = "$curPath/items/copy_Rarit"
     val dirsList = listDirsUsingDirectoryStream(itemsDir)
     println("dirsList = $dirsList")
@@ -43,16 +41,16 @@ fun App() {
         val imgFile = filesList.find { it!=txtFile }
         val txtFilePath = "$itemsDir/$it/$txtFile"
         val imgFilePath = "$itemsDir/$it/$imgFile"
-        val filesSet = setOf(txtFilePath, imgFilePath)
+//        val filesSet = setOf(txtFilePath, imgFilePath)
         val file = File(txtFilePath)
         val ioStream = BufferedReader(FileReader(file))
         ioStream.readLine()
         val s = ioStream.readLine()
 //        println("for $it: $filesList caption = $s")
 //        itemsMap[s] = "$itemsDir/$it"
-        itemsMap2[s] = filesSet
+        itemsMap2[s] = setOf(txtFilePath, imgFilePath)
     }
-    itemsMap2.forEach{//todo по этому мапу делаем список ключей и показываем в окне в виде выпадающего списка
+    itemsMap2.forEach{
         println("${it.key} : ${it.value}")
     }
     val fitimLogo = "fitim.png"
@@ -71,7 +69,14 @@ fun App() {
 //                TopAppBar(title = {
         Column(Modifier.fillMaxSize()) {
             UpperBar(nvsuLogoWhite, fitimLogoWhite)
-            MyContent()
+            DropdownDemo(itemsMap2.keys.toList()){
+                println("selected = $it")
+                val tempList = itemsMap2[it]?.toList()
+                filesSet.clear()
+                filesSet.add(tempList!!.first())
+                filesSet.add(tempList.last())
+            }
+            MyContent(filesSet)
         }
 //                },
 ////                backgroundColor = Color(0xff0f9d58))
@@ -107,13 +112,22 @@ private fun UpperBar(nvsuLogoWhite: String, fitimLogoWhite: String) {
     }
 }
 
-@Composable //todo сделать обычными объектами: текстом и картинками
-fun MyContent() {
+@Composable
+fun MyContent(filesSet: SnapshotStateList<String>) {
     val curPath = System.getProperty("user.dir")
     println("user dir = $curPath")
-    var text = File("$curPath/items/copy_Rarit/alfa/Кинокамера_Киев-16_Альфа_Полуавтомат.txt").readText().replace("\t","   ")
+    println("filesSet = ${filesSet.toList()}")
+    val textFile = filesSet.find {
+        it.contains(".txt")
+    }
+    val imageFile = filesSet.find {
+        !it.contains(".txt")
+    }
+//    var text = File("$curPath/items/copy_Rarit/alfa/Кинокамера_Киев-16_Альфа_Полуавтомат.txt").readText().replace("\t","   ")
+    var text = File("$textFile").readText().replace("\t","   ")
 //    println(text)
-    val file = File("$curPath/items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg")
+//    val file = File("$curPath/items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg")
+    val file = File("$imageFile")
     val imageBitmap: ImageBitmap = remember(file) {
         loadImageBitmap(file.inputStream())
     }
@@ -122,13 +136,14 @@ fun MyContent() {
         modifier = Modifier
             .fillMaxSize()
             .border(BorderStroke(2.dp, Color.Blue))
-            .padding(10.dp)
+            .padding(20.dp)
     ) {
         Text(
             text, fontSize = 20.sp,
             modifier = Modifier.weight(3f)
         )
-        Image(
+        Image( //todo сделать увеличение картинки на весь экран по щелчку
+            modifier = Modifier.weight(1f),
             painter = BitmapPainter(image = imageBitmap),
             contentDescription = null
         )
@@ -156,6 +171,62 @@ fun main() = application {
     }
 }
 
+@Composable
+fun DropdownDemo(itemsInitial:  List<String>, onUpdate: (x: String) -> Unit) { //комбобокс для выбора компорта для подключения к Arduino
+    var expanded by remember { mutableStateOf(false) }
+//    val items = listOf("com1", "com2", "com3")
+//    val disabledValue = "B"
+    var items = remember { mutableStateListOf<String>() }
+    itemsInitial.forEach {
+        if (!items.contains(it))items.add(it)
+    }
+    var selectedIndex by remember { mutableStateOf(-1) }
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+        Text( //заголовок комбобокса
+            if (selectedIndex<0) "Выберите экспонат: ▼" //если еще ничего не выбрано
+            else items[selectedIndex]+" ▼", //если выбрано
+            modifier = Modifier.clickable(onClick = { //при нажатии на текст раскрываем комбобокс
+//                val tempPortList = SerialPortList.getPortNames().toList() //получаем активные порты
+//                println("SerialPortList = $tempPortList")
+//                tempPortList.forEach {//добавляем новые порты к списку
+//                    if (!items.contains(it))items.add(it)
+//                }
+//                items.forEach{//убираем отключенные порты
+//                    if (!tempPortList.contains(it)) {
+////                        println("$it not in SerialPortList")
+//                        items.remove(it)
+//                    }
+//                }
+                expanded = true
+            })
+        )
+        DropdownMenu( //сам выпадающий список для комбобокса
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            items.forEachIndexed { index, s -> //заполняем элементы выпадающего списка
+                DropdownMenuItem(
+                    onClick = { //обработка нажатия на порт
+                        selectedIndex = index
+                        expanded = false
+                        onUpdate(s)
+//                        println("selected = $s")
+                    }
+                ) {
+//                    val disabledText = if (s == disabledValue) {
+//                        " (Disabled)"
+//                    } else {
+//                        ""
+//                    }
+                    Text(text = s )
+                }
+            }
+        }
+    }
+}
 
 //@Composable
 //fun Button(text: String = "", action: (() -> Unit)? = null) {
