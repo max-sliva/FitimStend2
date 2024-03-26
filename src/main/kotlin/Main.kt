@@ -10,9 +10,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.loadImageBitmap
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
@@ -59,7 +59,7 @@ fun App() {
 //    val fitimLogoWhite = "fitim_white.png"
     val facultyLogoWhite = "faculty_white.png"
     val nvsuLogoWhite = "NVSU_white.png"
-
+    var fontSize = remember { mutableStateOf(20.sp) }
     MaterialTheme {
 //        Button(onClick = {
 //            text = "Hello, Desktop!"
@@ -71,14 +71,14 @@ fun App() {
 //                TopAppBar(title = {
         Column(Modifier.fillMaxSize()) {
             UpperBar(nvsuLogoWhite, facultyLogoWhite)
-            DropdownDemo(itemsMap2.keys.toList()) {
+            DropdownDemo(itemsMap2.keys.toList(), fontSize) {
                 println("selected = $it")
                 val tempList = itemsMap2[it]?.toList()
                 filesSet.clear()
                 filesSet.add(tempList!!.first())
                 filesSet.add(tempList.last())
             }
-            MyContent(filesSet)
+            MyContent(filesSet, fontSize)
         }
 //                },
 ////                backgroundColor = Color(0xff0f9d58))
@@ -127,7 +127,7 @@ private fun UpperBar(nvsuLogoWhite: String, facultyLogoWhite: String) {
 }
 
 @Composable
-fun MyContent(filesSet: SnapshotStateList<String>) {
+fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUnit>) {
     val curPath = System.getProperty("user.dir")
     println("user dir = $curPath")
     println("filesSet = ${filesSet.toList()}")
@@ -158,8 +158,9 @@ fun MyContent(filesSet: SnapshotStateList<String>) {
 //                .weight(5f)
 //                .verticalScroll(stateVertical)
 //        ) {
+            val textSize:TextUnit = fontSize.value
             Text(
-                text, fontSize = 20.sp,
+                text, fontSize = textSize,
                 modifier = Modifier
                     .verticalScroll(stateVertical)
                     .weight(5f),
@@ -200,9 +201,9 @@ fun main() = application {
     listFilesUsingJavaIO("/")
     Window(
         onCloseRequest = ::exitApplication,
-//        undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
-//        alwaysOnTop = true,
-//        state = state
+        undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
+        alwaysOnTop = true,
+        state = state
     ) {
         App()
     }
@@ -211,6 +212,7 @@ fun main() = application {
 @Composable
 fun DropdownDemo(
     itemsInitial: List<String>,
+    fontSize: MutableState<TextUnit>,
     onUpdate: (x: String) -> Unit
 ) { //комбобокс для выбора компорта для подключения к Arduino
     var expanded by remember { mutableStateOf(false) }
@@ -221,11 +223,16 @@ fun DropdownDemo(
         if (!items.contains(it)) items.add(it)
     }
     var selectedIndex by remember { mutableStateOf(-1) }
-    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
-        Text( //заголовок комбобокса
-            if (selectedIndex < 0) "Выберите экспонат: ▼" //если еще ничего не выбрано
-            else items[selectedIndex] + " ▼", //если выбрано
-            modifier = Modifier.clickable(onClick = { //при нажатии на текст раскрываем комбобокс
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)
+        .fillMaxWidth()
+        .border(BorderStroke(2.dp, Color.Green))
+    ) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()){
+            Text( //заголовок комбобокса
+                if (selectedIndex < 0) "Выберите экспонат: ▼" //если еще ничего не выбрано
+                else items[selectedIndex] + " ▼", //если выбрано
+                modifier = Modifier.clickable(onClick = { //при нажатии на текст раскрываем комбобокс
 //                val tempPortList = SerialPortList.getPortNames().toList() //получаем активные порты
 //                println("SerialPortList = $tempPortList")
 //                tempPortList.forEach {//добавляем новые порты к списку
@@ -237,9 +244,34 @@ fun DropdownDemo(
 //                        items.remove(it)
 //                    }
 //                }
-                expanded = true
-            })
-        )
+                    expanded = true
+                })
+            )
+
+            Row(){
+                Text("Шрифт: ")
+                Button(modifier = Modifier.height(20.dp),
+                    onClick = {
+                        var size = fontSize.value.value
+                        size++
+                        fontSize.value=size.sp
+                    }
+                )
+                {
+                    Text("+")
+                }
+                Button(onClick = {
+                        var size = fontSize.value.value
+                        size--
+                        fontSize.value=size.sp
+                    }
+                ) {
+                    Text("-")
+                }
+            }
+
+        }
+
         DropdownMenu( //сам выпадающий список для комбобокса
             expanded = expanded,
             onDismissRequest = { expanded = false },
