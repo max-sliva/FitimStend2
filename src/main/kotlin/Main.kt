@@ -15,10 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.*
 import java.io.*
 
 //import java.io.File
@@ -26,7 +23,7 @@ import java.io.*
 //import com.kevinnzou.sample.MainWebView
 
 @Composable
-fun App() {
+fun App(state: MutableState<WindowState>) {
     val curPath = System.getProperty("user.dir")
     val backgroundImage = "items/background.jpg"
     println("user dir = $curPath")
@@ -60,7 +57,7 @@ fun App() {
     val facultyLogoWhite = "faculty_white.png"
     val nvsuLogoWhite = "NVSU_white.png"
     var fontSize = remember { mutableStateOf(20.sp) }
-    MaterialTheme {
+//    MaterialTheme() {
 //        Button(onClick = {
 //            text = "Hello, Desktop!"
 //        }) {
@@ -78,7 +75,7 @@ fun App() {
                 filesSet.add(tempList!!.first())
                 filesSet.add(tempList.last())
             }
-            MyContent(filesSet, fontSize)
+            MyContent(filesSet, fontSize, state)
         }
 //                },
 ////                backgroundColor = Color(0xff0f9d58))
@@ -86,7 +83,7 @@ fun App() {
 //            },
 //            content = { MyContent() }
 //        )
-    }
+//    }
 }
 
 @Composable
@@ -115,7 +112,7 @@ private fun UpperBar(nvsuLogoWhite: String, facultyLogoWhite: String) {
             contentScale = ContentScale.Fit, //параметры масштабирования изображения
         )
         var text = File("captionText.txt").readText()
-        Text(text, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text(text, color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
 //        Text("НВГУ ФИТМ | ИТ Музей", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Image(
             painter = BitmapPainter(image = facultyBitmap), //указываем источник изображения
@@ -127,7 +124,7 @@ private fun UpperBar(nvsuLogoWhite: String, facultyLogoWhite: String) {
 }
 
 @Composable
-fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUnit>) {
+fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUnit>, state: MutableState<WindowState>) {
     val curPath = System.getProperty("user.dir")
     println("user dir = $curPath")
     println("filesSet = ${filesSet.toList()}")
@@ -145,11 +142,13 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
     val imageBitmap: ImageBitmap = remember(file) {
         loadImageBitmap(file.inputStream())
     }
+    var isOpen by remember { mutableStateOf(true) }
+    var isAskingToClose by remember { mutableStateOf(false) }
     println()
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .border(BorderStroke(2.dp, Color.Blue))
+            .border(BorderStroke(2.dp, Color(0xff1e63b2)))
             .padding(30.dp)
     ) {
         val stateVertical = rememberScrollState(0)
@@ -171,7 +170,8 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 //        }
         VerticalScrollbar(
             modifier = Modifier
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .padding(start = 20.dp),
             adapter = rememberScrollbarAdapter(stateVertical)
         )
         Image(
@@ -180,11 +180,51 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
                 .clickable(
                     onClick = {//todo сделать увеличение картинки на весь экран по щелчку
                         println("image clicked")
+                        isAskingToClose = true
                     }
                 ),
             painter = BitmapPainter(image = imageBitmap),
             contentDescription = null
         )
+        if (isAskingToClose) {
+//            DialogWindow(
+//                onCloseRequest = { isAskingToClose = false },
+//                title = "Close the document without saving?",
+//            ) {
+//                Button(
+//                    onClick = { isOpen = false }
+//                ) {
+//                    Text("Yes")
+//                }
+//            }
+            Window(
+                onCloseRequest = {
+                    isAskingToClose = false
+                    state.value = WindowState(WindowPlacement.Fullscreen)
+                },
+                undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
+                alwaysOnTop = true,
+                state = WindowState(WindowPlacement.Fullscreen),
+                title = " Window Example"
+            ){
+                Image(
+                    modifier = Modifier
+                        .fillMaxSize()
+                    ,
+                    painter = BitmapPainter(image = imageBitmap),
+                    contentDescription = null
+                )
+                Button(
+                    onClick = {
+                        isAskingToClose = false
+                        state.value = WindowState(WindowPlacement.Fullscreen)
+                    }
+                ){
+                    Text("Закрыть")
+                }
+            }
+//            state.value = WindowState(WindowPlacement.Fullscreen)
+        }
 //        Image(
 //            modifier = Modifier.weight(1f),
 //            painter = painterResource("items/copy_Rarit/alfa/Внешний_вид_кинокамеры.jpg"), //указываем источник изображения
@@ -195,19 +235,33 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 }
 
 fun main() = application {
-    val state = rememberWindowState(
-        placement = WindowPlacement.Fullscreen
-    )
+    var state: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
+
     listFilesUsingJavaIO("/")
     Window(
         onCloseRequest = ::exitApplication,
         undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
         alwaysOnTop = true,
-        state = state
+        state = state.value
+//        state = WindowState(WindowPlacement.Fullscreen)
     ) {
-        App()
+        App(state)
     }
+
+//    secondWindow(::exitApplication)
 }
+
+//private fun secondWindow(kFunction1: KFunction0<Unit>) {
+//    val state2 = rememberWindowState(
+//        placement = WindowPlacement.Fullscreen
+//    )
+//    Window(
+//        visible = true,
+//        onCloseRequest = kFunction1,
+//    ) {
+////                            App()
+//    }
+//}
 
 @Composable
 fun DropdownDemo(
@@ -224,52 +278,42 @@ fun DropdownDemo(
     }
     var selectedIndex by remember { mutableStateOf(-1) }
     Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)
+        .height(IntrinsicSize.Min)
         .fillMaxWidth()
-        .border(BorderStroke(2.dp, Color.Green))
+//        .border(BorderStroke(2.dp, Color.Green))
     ) {
-        Row(horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()){
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ){
             Text( //заголовок комбобокса
                 if (selectedIndex < 0) "Выберите экспонат: ▼" //если еще ничего не выбрано
                 else items[selectedIndex] + " ▼", //если выбрано
                 modifier = Modifier.clickable(onClick = { //при нажатии на текст раскрываем комбобокс
-//                val tempPortList = SerialPortList.getPortNames().toList() //получаем активные порты
-//                println("SerialPortList = $tempPortList")
-//                tempPortList.forEach {//добавляем новые порты к списку
-//                    if (!items.contains(it))items.add(it)
-//                }
-//                items.forEach{//убираем отключенные порты
-//                    if (!tempPortList.contains(it)) {
-////                        println("$it not in SerialPortList")
-//                        items.remove(it)
-//                    }
-//                }
                     expanded = true
                 })
             )
 
-            Row(){
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+//                .padding(all = 50.dp)
+            ){
                 Text("Шрифт: ")
-                Button(modifier = Modifier.height(20.dp),
-                    onClick = {
-                        var size = fontSize.value.value
-                        size++
-                        fontSize.value=size.sp
-                    }
-                )
-                {
-                    Text("+")
+                FontSizeButton("+"){
+                    var size = fontSize.value.value
+                    size++
+                    fontSize.value = size.sp
                 }
-                Button(onClick = {
-                        var size = fontSize.value.value
-                        size--
-                        fontSize.value=size.sp
-                    }
-                ) {
-                    Text("-")
+                FontSizeButton("-"){
+                    var size = fontSize.value.value
+                    size--
+                    fontSize.value = size.sp
                 }
             }
-
         }
 
         DropdownMenu( //сам выпадающий список для комбобокса
@@ -297,6 +341,21 @@ fun DropdownDemo(
                 }
             }
         }
+    }
+}
+@Composable //ф-ия для создания кнопок изменения размера шрифта
+private fun FontSizeButton(s: String, onClick: () -> Unit) {
+    Button(
+        modifier = Modifier
+//                        .height(20.dp)
+            .border(BorderStroke(2.dp, Color.White))
+            .heightIn(max = 30.dp),
+        contentPadding = PaddingValues(all = 0.dp),
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(Color(0xff1e63b2))
+    )
+    {
+        Text( s, color = Color.White)
     }
 }
 

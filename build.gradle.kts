@@ -24,6 +24,7 @@ dependencies {
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
+    //implementation(compose.desktop.linux_arm64) //for RPi
     implementation("io.github.java-native:jssc:2.9.6")
     implementation("org.json:json:20231013")
 //    implementation("io.github.oleksandrbalan:textflow:1.1.2")
