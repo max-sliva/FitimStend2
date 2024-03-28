@@ -24,13 +24,14 @@ dependencies {
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
-    //implementation(compose.desktop.linux_arm64) //for RPi
+//    implementation(compose.desktop.linux_arm64) //for RPi
     implementation("io.github.java-native:jssc:2.9.6")
     implementation("org.json:json:20231013")
 //    implementation("io.github.oleksandrbalan:textflow:1.1.2")
 //    implementation("dev.romainguy:combo-breaker:0.9.0")
 }
 //to make exe run in terminal:
+//    ./gradlew createDistributable
 // ./gradlew runDistributable
 compose.desktop {
     application {
@@ -38,7 +39,7 @@ compose.desktop {
 
         nativeDistributions {
 //            modules("java.instrument", "java.net.http", "jdk.jfr", "jdk.jsobject", "jdk.unsupported", "jdk.unsupported.desktop", "jdk.xml.dom")
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "FitimStend2"
             packageVersion = "1.0.0"
         }

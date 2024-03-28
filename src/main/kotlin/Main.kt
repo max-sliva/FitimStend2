@@ -143,7 +143,7 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
         loadImageBitmap(file.inputStream())
     }
     var isOpen by remember { mutableStateOf(true) }
-    var isAskingToClose by remember { mutableStateOf(false) }
+    var secondWindowShow by remember { mutableStateOf(false) }
     println()
     Row(
         modifier = Modifier
@@ -164,8 +164,7 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
                     .verticalScroll(stateVertical)
                     .weight(5f),
                 textAlign = TextAlign.Justify,
-                maxLines = 100
-
+//                maxLines = 100
             )
 //        }
         VerticalScrollbar(
@@ -178,15 +177,15 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
             modifier = Modifier
                 .weight(2f)
                 .clickable(
-                    onClick = {//todo сделать увеличение картинки на весь экран по щелчку
+                    onClick = {
                         println("image clicked")
-                        isAskingToClose = true
+                        secondWindowShow = true
                     }
                 ),
             painter = BitmapPainter(image = imageBitmap),
             contentDescription = null
         )
-        if (isAskingToClose) {
+        if (secondWindowShow) {
 //            DialogWindow(
 //                onCloseRequest = { isAskingToClose = false },
 //                title = "Close the document without saving?",
@@ -197,9 +196,9 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 //                    Text("Yes")
 //                }
 //            }
-            Window(
+            Window( //второе окно для увеличения изображения
                 onCloseRequest = {
-                    isAskingToClose = false
+                    secondWindowShow = false
                     state.value = WindowState(WindowPlacement.Fullscreen)
                 },
                 undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
@@ -216,7 +215,7 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
                 )
                 Button(
                     onClick = {
-                        isAskingToClose = false
+                        secondWindowShow = false
                         state.value = WindowState(WindowPlacement.Fullscreen)
                     }
                 ){
@@ -250,18 +249,6 @@ fun main() = application {
 
 //    secondWindow(::exitApplication)
 }
-
-//private fun secondWindow(kFunction1: KFunction0<Unit>) {
-//    val state2 = rememberWindowState(
-//        placement = WindowPlacement.Fullscreen
-//    )
-//    Window(
-//        visible = true,
-//        onCloseRequest = kFunction1,
-//    ) {
-////                            App()
-//    }
-//}
 
 @Composable
 fun DropdownDemo(
