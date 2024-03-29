@@ -234,12 +234,16 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 }
 
 fun main() = application {
+    configureArduinoConnect()
+    var windowMode = File("mode.txt").readText() //для переключения режима с заголовком / без  для деплоя и отладки
+    println("windowMode = $windowMode")
     var state: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
 
     listFilesUsingJavaIO("/")
     Window(
         onCloseRequest = ::exitApplication,
-        undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
+        //эти 3 строки нужны для фуллскрина без оконных кнопок
+        undecorated = windowMode.contains("0"), //если в файле mode.txt первое число 0, то без оконных кнопок, иначе они будут, для отладки
         alwaysOnTop = true,
         state = state.value
 //        state = WindowState(WindowPlacement.Fullscreen)

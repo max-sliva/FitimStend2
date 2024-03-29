@@ -2,8 +2,8 @@
 char recv = '0'; //переменная для приема и отправки сообщений
 char lastRecv = '0'; //дополнительная переменная для хранения предыдущего значения recv
 byte buttonPress = HIGH; // переменная для определения нажата кнопка или нет, HIGH – не нажата
-byte buttArray[n]  = {1, 2};
-String numbersArray[n] = {"1", "2"};
+byte buttArray[n]  = {9, 10};
+String numbersArray[n] = {"9", "10"};
 bool butState[n] = {0, 0}; //массив состояний кнопок
 
 long time; // переменная для таймера
@@ -30,6 +30,7 @@ void buttonsListener(byte buttI){
     if (but == LOW) butState[buttI] = 1; //если нажали, задаем переменной state 1 (true)
     if (but == HIGH && butState[buttI] == 1){ //если кнопку отпустили
         Serial.print(numbersArray[buttI]);
+        Serial.println(";");
         butState[buttI] = 0; //сбрасываем состояние кнопки
     }
 }
