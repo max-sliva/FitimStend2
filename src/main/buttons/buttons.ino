@@ -1,16 +1,19 @@
-#define n 2
+#define n 2 //кол-во кнопок
 char recv = '0'; //переменная для приема и отправки сообщений
 char lastRecv = '0'; //дополнительная переменная для хранения предыдущего значения recv
 byte buttonPress = HIGH; // переменная для определения нажата кнопка или нет, HIGH – не нажата
-byte buttArray[n]  = {9, 10};
-String numbersArray[n] = {"9", "10"};
+byte buttArray[n]  = {9, 10}; //массив с пинами кнопок
+byte ledArray[n] = {3, 6};  //массив с пинами светодиодов
+String numbersArray[n] = {"9", "10"}; //строки с номерами кнопок (может, не нужны)
 bool butState[n] = {0, 0}; //массив состояний кнопок
 
 long time; // переменная для таймера
 void setup() {
   pinMode(13, OUTPUT); //настраиваем пин для встроенного светодиода
-  for (byte i = 0; i<n; i++)
+  for (byte i = 0; i<n; i++){
     pinMode(buttArray[i], INPUT_PULLUP); //настраиваем пин для кнопки
+    pinMode(ledArray[i], OUTPUT);
+  }
   digitalWrite(13, LOW); //гасим светодиод на всякий случай
   Serial.begin(9600); //задаем скорость порта
   time = millis(); //стартуем таймер
@@ -29,8 +32,13 @@ void buttonsListener(byte buttI){
     bool but = digitalRead(buttArray[buttI]); //считываем состояние кнопки
     if (but == LOW) butState[buttI] = 1; //если нажали, задаем переменной state 1 (true)
     if (but == HIGH && butState[buttI] == 1){ //если кнопку отпустили
-        Serial.print(numbersArray[buttI]);
+        // Serial.print(numbersArray[buttI]);
+        Serial.print(buttArray[buttI]);
         Serial.println(";");
+        for (byte i=0; i<n; i++){
+          if (i!=buttI) digitalWrite(ledArray[i], LOW);
+          else digitalWrite(ledArray[i], HIGH);
+        }
         butState[buttI] = 0; //сбрасываем состояние кнопки
     }
 }
