@@ -27,6 +27,8 @@ dependencies {
 //    implementation(compose.desktop.linux_arm64) //for RPi
     implementation("io.github.java-native:jssc:2.9.6")
     implementation("org.json:json:20231013")
+    implementation("com.formdev:flatlaf:3.4.1") //look'n'feel
+    //implementation("org.swinglabs.swingx:swingx-all:1.6.5-1")
 //    implementation("io.github.oleksandrbalan:textflow:1.1.2")
 //    implementation("dev.romainguy:combo-breaker:0.9.0")
 }
