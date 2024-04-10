@@ -1,5 +1,6 @@
 import com.formdev.flatlaf.FlatLightLaf
 import java.awt.*
+import java.awt.event.ActionEvent
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -107,15 +108,53 @@ class SimpleEx(title: String) : JFrame() {
             println("filesSet = $filesSet")
             val text = File(filesSet.first()).readText()
             textArea.text = text
+            var itemImage = ImageIcon(filesSet.last())
+            var image = itemImage.image
+//        val imageHolder = frame.getImageHolder()
+            val imageWidth = itemImage.iconWidth
+            val newWidth = 500.0
+            val ratio = imageWidth / newWidth
+            val imageHeight = itemImage.iconHeight / ratio
+            var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+            imageHolder.icon = ImageIcon(newimg)
+            imageHolder.preferredSize = Dimension(newWidth.toInt(), imageHolder.minimumSize.height)
+//            imageHolder.horizontalAlignment = JLabel.CENTER
+////        imageHolder.icon = itemImage
+//            imageHolder.preferredSize = Dimension(400, 300)
         }
         itemsComboBox.model = comboBoxModel
         val lowerNorthBox = Box(BoxLayout.X_AXIS)
         lowerNorthBox.add(itemsComboBox)
         lowerNorthBox.add(Box.createHorizontalGlue())
+        val fontChangeLabel = JLabel("Шрифт:  ")
+        val fontPlus = JButton("+")
+        val fontMinus = JButton("–")
+        lowerNorthBox.add(fontChangeLabel)
+        lowerNorthBox.add(fontMinus)
+        lowerNorthBox.add(Box.createHorizontalStrut(20))
+        lowerNorthBox.add(fontPlus)
+        fontPlus.preferredSize = Dimension(70, fontPlus.minimumSize.height)
+        fontMinus.preferredSize = Dimension(70, fontMinus.minimumSize.height)
+        fontPlus.addActionListener{e->
+            fontSizeChange(e)
+        }
+        fontMinus.addActionListener {e->
+            fontSizeChange(e)
+        }
+
         northBoxMain.add(upperNorthBox)
         northBoxMain.add(lowerNorthBox)
         add(northBoxMain, BorderLayout.NORTH)
 
+    }
+
+    private fun fontSizeChange(e: ActionEvent) {
+        var font = textArea.font
+        var fontSize = font.size2D
+        println("fontSize = $fontSize")
+        if (e.actionCommand=="+") fontSize++ else fontSize--
+        font = font.deriveFont(fontSize)
+        textArea.font = font
     }
 
     private fun getItemsMap(): MutableMap<String, Set<String>> {
@@ -152,13 +191,13 @@ class SimpleEx(title: String) : JFrame() {
 
     private fun setCentralPart(){
         val pane = JPanel(GridBagLayout())
-        pane.border = BorderFactory.createLineBorder(Color.GREEN, 3)
+//        pane.border = BorderFactory.createLineBorder(Color.GREEN, 3)
 //        pane.layout = GridBagLayout()
         val text = File(filesSet.first()).readText()
         textArea.text = text
         textArea.lineWrap = true
         textArea.wrapStyleWord = true
-        textArea.border = BorderFactory.createLineBorder(Color.BLUE, 2)
+//        textArea.border = BorderFactory.createLineBorder(Color.BLUE, 2)
         var font = textArea.font
         font = font.deriveFont(22f)
         textArea.font = font
@@ -177,7 +216,7 @@ class SimpleEx(title: String) : JFrame() {
 //        c.gridwidth = 1
         c.weightx = 0.5
         c.gridy = 0
-        imageHolder.border = BorderFactory.createLineBorder(Color.RED, 2)
+//        imageHolder.border = BorderFactory.createLineBorder(Color.RED, 2)
 //        val filesSet = frame.getFilesSet()
         var itemImage = ImageIcon(filesSet.last())
         var image = itemImage.image
