@@ -259,12 +259,52 @@ class SimpleEx(title: String) : JFrame() {
 }
 
 private fun createAndShowGUI() {
-    val frame = SimpleEx("Simple")
+
+    val firstFrame = JFrame("Загрузка")
+    firstFrame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+    firstFrame.setSize(400, 300)
+    firstFrame.setLocationRelativeTo(null)
+    val pane = JPanel(GridBagLayout())
+    val c = GridBagConstraints()
+    c.fill = GridBagConstraints.HORIZONTAL
+    c.gridx = 0 //aligned with button 2
+//        c.gridwidth = 3 //2 columns wide
+    c.weightx = 2.0
+    c.weighty = 2.0
+    c.gridy = 0 //
+    val showMainBtn = JButton("Музей")
+    showMainBtn.addActionListener {
+        val frame = SimpleEx("Simple")
 //    frame.isUndecorated = true
-    val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
-    val device = graphics.defaultScreenDevice
-    device.setFullScreenWindow(frame) //for full screen
-    frame.isVisible = true
+        val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
+        val device = graphics.defaultScreenDevice
+        device.setFullScreenWindow(frame) //for full screen
+        frame.isVisible = true
+        firstFrame.isVisible = false
+    }
+    pane.add(showMainBtn, c)
+    c.gridx = 2
+    pane.add(Box.createHorizontalGlue(),c)
+    val showSettingsBtn = JButton("Настройки")
+    c.gridx = 4 //aligned with button 2
+//        c.gridwidth = 3 //2 columns wide
+    c.weightx = 2.0
+    c.weighty = 2.0
+    c.gridy = 0 //
+    showSettingsBtn.addActionListener {
+        val settingsWindow = SettingsWork()
+        settingsWindow.isVisible = true
+    }
+
+    pane.add(showSettingsBtn, c)
+    firstFrame.add(pane, BorderLayout.CENTER)
+    firstFrame.isVisible = true
+//    val frame = SimpleEx("Simple")
+////    frame.isUndecorated = true
+//    val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
+//    val device = graphics.defaultScreenDevice
+//    device.setFullScreenWindow(frame) //for full screen
+//    frame.isVisible = true
 //    val filesSet = frame.getFilesSet()
 //    var itemImage = ImageIcon(filesSet.last())
 //    var image = itemImage.image
