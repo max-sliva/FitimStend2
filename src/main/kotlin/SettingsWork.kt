@@ -1,5 +1,6 @@
 
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.util.*
@@ -9,7 +10,7 @@ import javax.swing.JFrame
 
 class SettingsWork: JFrame() {
     private lateinit var prefs: Preferences
-
+    private val curPath = System.getProperty("user.dir")
     init {
         createUI("Настройки")
 //        println("filesSet = $filesSet")
@@ -22,24 +23,37 @@ class SettingsWork: JFrame() {
 //        setCentralPart()
         setSize(800, 600)
         setLocationRelativeTo(null)
-        setPreference()
+//        setProperties()
+        readProperties()
     }
 
-    fun setPreference() {
-        // This will define a node in which the preferences can be stored
-        prefs = Preferences.userRoot().node(this.javaClass.name)
-        val ID1 = "Test1"
-        val ID2 = "Test2"
-        val ID3 = "Test3"
+    fun readProperties(){
+//        val rootPath = Thread.currentThread().contextClassLoader.getResource("").path
+        val rootPath = curPath
+        val appConfigPath = "$rootPath/app.properties"
 
-        // First we will get the values
-        // Define a boolean value
-        println(prefs.getBoolean(ID1, true))
-        // Define a string with default "Hello World
-        println(prefs.get(ID2, "Hello World"))
-        // Define a integer with default 50
-        println(prefs.getInt(ID3, 50))
-        println("all prefs = $prefs")
+        val appProps = Properties()
+        appProps.load(FileInputStream(appConfigPath))
+
+        val appVersion = appProps.getProperty("version")
+        println("version = $appVersion")
+    }
+
+    fun setProperties() {
+//        // This will define a node in which the preferences can be stored
+//        prefs = Preferences.userRoot().node(this.javaClass.name)
+//        val ID1 = "Test1"
+//        val ID2 = "Test2"
+//        val ID3 = "Test3"
+//
+//        // First we will get the values
+//        // Define a boolean value
+//        println(prefs.getBoolean(ID1, true))
+//        // Define a string with default "Hello World
+//        println(prefs.get(ID2, "Hello World"))
+//        // Define a integer with default 50
+//        println(prefs.getInt(ID3, 50))
+//        println("all prefs = $prefs")
         // now set the values
 //        prefs.putBoolean(ID1, false)
 //        prefs.put(ID2, "Hello Europa")
