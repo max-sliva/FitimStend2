@@ -1,16 +1,22 @@
 
+import java.awt.BorderLayout
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.util.*
 import java.util.prefs.Preferences
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JButton
 import javax.swing.JFrame
 
 
 class SettingsWork: JFrame() {
     private lateinit var prefs: Preferences
     private val curPath = System.getProperty("user.dir")
+//    val rootPath = curPath
+    private val appConfigPath = "$curPath/app.properties"
     init {
         createUI("Настройки")
 //        println("filesSet = $filesSet")
@@ -25,18 +31,38 @@ class SettingsWork: JFrame() {
         setLocationRelativeTo(null)
 //        setProperties()
         readProperties()
+        val savePropsButton = JButton("Сохранить")
+        savePropsButton.addActionListener {
+            saveProperties()
+        }
+
+        val setItemsDirectory = JButton("Папка с файлами...")
+        setItemsDirectory.addActionListener {
+            //todo сделать выбор папки с экспонатами и сохраниение пути в другой файл с Properties (folderName.properties)
+        }
+
+        val northUpperBox = Box(BoxLayout.X_AXIS)
+        northUpperBox.add(setItemsDirectory)
+        northUpperBox.add(Box.createHorizontalGlue())
+        northUpperBox.add(savePropsButton)
+
+        val northLowerBox = Box(BoxLayout.X_AXIS) // или JPanel с FlowLayout сделать для номеров кнопок
+
+        val northBox = Box(BoxLayout.Y_AXIS)
+        northBox.add(northUpperBox)
+        northBox.add(northLowerBox)
+
+        add(northBox, BorderLayout.NORTH)
     }
 
     fun readProperties(){
 //        val rootPath = Thread.currentThread().contextClassLoader.getResource("").path
-        val rootPath = curPath
-        val appConfigPath = "$rootPath/app.properties"
 
         val appProps = Properties()
         appProps.load(FileInputStream(appConfigPath))
-
-        val appVersion = appProps.getProperty("version")
-        println("version = $appVersion")
+        println("props = ${appProps.entries}")
+//        val appVersion = appProps.getProperty("version")
+//        println("version = $appVersion")
     }
 
     fun setProperties() {
@@ -71,7 +97,7 @@ class SettingsWork: JFrame() {
             val props = Properties()
             props.setProperty("User name", USER_NAME)
             props.setProperty("Display picture address", DP_ADDRESS)
-            val f = File("YOUR_TARGET_FILE_PATH")
+            val f = File(appConfigPath)
             val out: OutputStream = FileOutputStream(f)
             //If you wish to make some comments
             props.store(out, "User properties")
