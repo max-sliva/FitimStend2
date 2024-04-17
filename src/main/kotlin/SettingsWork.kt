@@ -14,7 +14,19 @@ class SettingsWork: JFrame() {
     private val curPath = System.getProperty("user.dir")
 //    val rootPath = curPath
     private val appConfigPath = "$curPath/app.properties"
+    private val folderNamePath = "$curPath/folderName.properties"
+    private lateinit var itemsFolderName: String
+    private var itemsDir: String
+    private var dirsList:  Set<String>
+
     init {
+        val appProps = Properties()
+        appProps.load(FileInputStream(folderNamePath))
+        println("props = ${appProps.entries}")
+        itemsFolderName = appProps.getProperty("itemsFolder")
+        itemsDir = "$curPath/items/$itemsFolderName"
+        dirsList = listDirsUsingDirectoryStream(itemsDir)
+        println("dirsList = $dirsList")
         createUI("Настройки")
 //        println("filesSet = $filesSet")
     }
@@ -45,7 +57,15 @@ class SettingsWork: JFrame() {
                 val file = fileChooser.selectedFile
                 label.text = "Folder Selected: ${file.name}"
                 println("Folder Selected: ${file.name}")
-            //todo сделать сохраниение пути file.name в файл с Properties (folderName.properties)
+            //todo сделать сохранение пути file.name в файл с Properties (folderName.properties)
+                val FOLDER_NAME = file.name
+                val props = Properties()
+                props.setProperty("itemsFolder", FOLDER_NAME)
+                val f = File(folderNamePath)
+                val out: OutputStream = FileOutputStream(f)
+                //If you wish to make some comments
+                props.store(out, "folder properties")
+
             } else {
                 label.text = "Open command canceled"
                 println("Open command canceled")

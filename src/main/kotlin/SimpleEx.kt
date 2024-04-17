@@ -1,16 +1,15 @@
 import com.formdev.flatlaf.FlatLightLaf
 import java.awt.*
 import java.awt.event.ActionEvent
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
-import java.io.IOException
+import java.io.*
+import java.util.*
 import javax.swing.*
 
 
 class SimpleEx(title: String) : JFrame() {
 
     private val curPath = System.getProperty("user.dir")
+    private val folderNamePath = "$curPath/folderName.properties"
     private val backgroundImage = "items/background.jpg"
     private var filesSet =  listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
     private val textArea = JTextArea()
@@ -162,7 +161,11 @@ class SimpleEx(title: String) : JFrame() {
         val backgroundImage = "items/background.jpg"
         println("user dir = $curPath")
 //    var filesSet =  listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
-        val itemsDir = "$curPath/items/copy_Rarit"
+        val appProps = Properties()
+        appProps.load(FileInputStream(folderNamePath))
+        println("props = ${appProps.entries}")
+        val itemsFolderName = appProps.getProperty("itemsFolder")
+        val itemsDir = "$curPath/items/$itemsFolderName"
         val dirsList = listDirsUsingDirectoryStream(itemsDir)
         println("dirsList = $dirsList")
         //var setOfItems =
