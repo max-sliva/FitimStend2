@@ -6,10 +6,7 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.util.*
 import java.util.prefs.Preferences
-import javax.swing.Box
-import javax.swing.BoxLayout
-import javax.swing.JButton
-import javax.swing.JFrame
+import javax.swing.*
 
 
 class SettingsWork: JFrame() {
@@ -38,7 +35,21 @@ class SettingsWork: JFrame() {
 
         val setItemsDirectory = JButton("Папка с файлами...")
         setItemsDirectory.addActionListener {
-            //todo сделать выбор папки с экспонатами и сохраниение пути в другой файл с Properties (folderName.properties)
+            val label = JLabel("")
+            val fileChooser = JFileChooser()
+            fileChooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+//            println("curPath = $curPath")
+            fileChooser.currentDirectory = File(curPath)
+            val option = fileChooser.showOpenDialog(this)
+            if (option == JFileChooser.APPROVE_OPTION) {
+                val file = fileChooser.selectedFile
+                label.text = "Folder Selected: ${file.name}"
+                println("Folder Selected: ${file.name}")
+            //todo сделать сохраниение пути file.name в файл с Properties (folderName.properties)
+            } else {
+                label.text = "Open command canceled"
+                println("Open command canceled")
+            }
         }
 
         val northUpperBox = Box(BoxLayout.X_AXIS)
