@@ -63,7 +63,6 @@ class SettingsWork: JFrame() {
                 props.setProperty("itemsFolder", FOLDER_NAME)
                 val f = File(folderNamePath)
                 val out: OutputStream = FileOutputStream(f)
-                //If you wish to make some comments
                 props.store(out, "folder properties")
 
             } else {
