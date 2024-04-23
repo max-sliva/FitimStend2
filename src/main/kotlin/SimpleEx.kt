@@ -110,11 +110,27 @@ class SimpleEx(title: String) : JFrame() {
             var itemImage = ImageIcon(filesSet.last())
             var image = itemImage.image
 //        val imageHolder = frame.getImageHolder()
-            val imageWidth = itemImage.iconWidth
+            var imageWidth = itemImage.iconWidth
+            var imageHeight = itemImage.iconHeight
             val newWidth = 500.0
-            val ratio = imageWidth / newWidth
-            val imageHeight = itemImage.iconHeight / ratio
-            var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+            val newHeight = 800.0
+            if (itemImage.iconWidth>itemImage.iconHeight) {
+                val ratio = imageWidth/ newWidth
+                imageWidth = newWidth.toInt()
+                imageHeight = (itemImage.iconHeight / ratio).toInt()
+            } else {
+                val ratio = imageHeight / newHeight
+                imageHeight = newHeight.toInt()
+                imageWidth = (itemImage.iconWidth / ratio).toInt()
+            }
+
+//        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+            var newimg = image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
+//            val imageWidth = itemImage.iconWidth
+//            val newWidth = 500.0
+//            val ratio = imageWidth / newWidth
+//            val imageHeight = itemImage.iconHeight / ratio
+//            var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
             imageHolder.icon = ImageIcon(newimg)
             imageHolder.preferredSize = Dimension(newWidth.toInt(), imageHolder.minimumSize.height)
 //            imageHolder.horizontalAlignment = JLabel.CENTER
@@ -224,12 +240,24 @@ class SimpleEx(title: String) : JFrame() {
         var itemImage = ImageIcon(filesSet.last())
         var image = itemImage.image
 //        val imageHolder = frame.getImageHolder()
-        val imageWidth = itemImage.iconWidth
+        var imageWidth = itemImage.iconWidth
+        var imageHeight = itemImage.iconHeight
         val newWidth = 500.0
-        val ratio = imageWidth / newWidth
-        val imageHeight = itemImage.iconHeight / ratio
-        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+        val newHeight = 800.0
+        if (itemImage.iconWidth>itemImage.iconHeight) {
+            val ratio = imageWidth/ newWidth
+            imageWidth = newWidth.toInt()
+            imageHeight = (itemImage.iconHeight / ratio).toInt()
+        } else {
+            val ratio = imageHeight / newHeight
+            imageHeight = newHeight.toInt()
+            imageWidth = (itemImage.iconWidth / ratio).toInt()
+        }
+
+//        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+        var newimg = image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
         imageHolder.icon = ImageIcon(newimg)
+        imageHolder.border = BorderFactory.createLineBorder(Color.RED, 2)
         imageHolder.horizontalAlignment = JLabel.CENTER
 //        imageHolder.icon = itemImage
         imageHolder.preferredSize = Dimension(400, 300)
@@ -281,7 +309,7 @@ private fun createAndShowGUI() {
 //    frame.isUndecorated = true
         val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
         val device = graphics.defaultScreenDevice
-        device.setFullScreenWindow(frame) //for full screen
+//        device.setFullScreenWindow(frame) //for full screen
         frame.isVisible = true
         firstFrame.isVisible = false
     }
