@@ -156,11 +156,9 @@ class SimpleEx(title: String) : JFrame() {
         fontMinus.addActionListener {e->
             fontSizeChange(e)
         }
-
         northBoxMain.add(upperNorthBox)
         northBoxMain.add(lowerNorthBox)
         add(northBoxMain, BorderLayout.NORTH)
-
     }
 
     private fun fontSizeChange(e: ActionEvent) {

@@ -57,7 +57,6 @@ class SettingsWork: JFrame() {
                 val file = fileChooser.selectedFile
                 label.text = "Folder Selected: ${file.name}"
                 println("Folder Selected: ${file.name}")
-            //todo сделать сохранение пути file.name в файл с Properties (folderName.properties)
                 val FOLDER_NAME = file.name
                 val props = Properties()
                 props.setProperty("itemsFolder", FOLDER_NAME)
@@ -77,6 +76,8 @@ class SettingsWork: JFrame() {
         northUpperBox.add(savePropsButton)
 
         val northLowerBox = Box(BoxLayout.X_AXIS) // или JPanel с FlowLayout сделать для номеров кнопок
+        ///todo отпарвлять сигнал Arduino и получать номера пинов кнопок
+
 
         val northBox = Box(BoxLayout.Y_AXIS)
         northBox.add(northUpperBox)

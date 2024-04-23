@@ -43,4 +43,8 @@ fun configureArduinoConnect(/*htmlFilesJSONArray: JSONArray*/) {
         }
     }
 
+fun sendToArduino(str: String) {
+    //todo сделать отправку запроса в Arduino
+}
+
 
