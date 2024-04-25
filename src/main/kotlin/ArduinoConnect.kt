@@ -11,8 +11,10 @@ fun configureArduinoConnect(/*htmlFilesJSONArray: JSONArray*/) {
         println(port)
         var totalStr = ""
         serialPort = SerialPort(port)
-        serialPort.openPort()
-        serialPort.setParams(9600, 8, 1, 0)
+        if (!serialPort.isOpened) {
+            serialPort.openPort()
+            serialPort.setParams(9600, 8, 1, 0)
+        }
         serialPort.addEventListener{
             if (it.isRXCHAR) {// если есть данные для приема
                 var str = serialPort.readString()
@@ -45,6 +47,15 @@ fun configureArduinoConnect(/*htmlFilesJSONArray: JSONArray*/) {
 
 fun sendToArduino(str: String) {
     //todo сделать отправку запроса в Arduino
+    var serialPort: SerialPort?
+    for (port in SerialPortList.getPortNames()) {
+        serialPort = SerialPort(port)
+        if (!serialPort.isOpened) {
+            serialPort.openPort()
+            serialPort.setParams(9600, 8, 1, 0)
+        }
+        serialPort.writeString(str)
+    }
 }
 
 
