@@ -5,7 +5,7 @@ import org.json.JSONObject
 
 //fun configureArduinoConnect(engine: WebEngine, pagesNumbersMap: Map<String, String>) {
 //fun configureArduinoConnect(engine: WebEngine, htmlFilesJSONArray: JSONArray) {
-fun configureArduinoConnect(/*htmlFilesJSONArray: JSONArray*/) {
+fun configureArduinoConnect( serialPortFromGUI: SerialPort/*htmlFilesJSONArray: JSONArray*/) {
     var serialPort: SerialPort?
     for (port in SerialPortList.getPortNames()) {
         println(port)
@@ -42,6 +42,7 @@ fun configureArduinoConnect(/*htmlFilesJSONArray: JSONArray*/) {
 //                    engine.load(url.toString())
                 }
             }
+        serialPort.closePort()
         }
     }
 
@@ -50,11 +51,13 @@ fun sendToArduino(str: String) {
     var serialPort: SerialPort?
     for (port in SerialPortList.getPortNames()) {
         serialPort = SerialPort(port)
-        if (!serialPort.isOpened) {
-            serialPort.openPort()
-            serialPort.setParams(9600, 8, 1, 0)
-        }
+//        if (!serialPort.isOpened) {
+//            serialPort.openPort()
+//            serialPort.setParams(9600, 8, 1, 0)
+//        }
         serialPort.writeString(str)
+        println("sent to Arduino $str")
+//        serialPort.closePort()
     }
 }
 
