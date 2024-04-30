@@ -3,7 +3,10 @@ import jssc.SerialPort
 import jssc.SerialPortEvent
 import jssc.SerialPortList
 import java.awt.BorderLayout
+import java.awt.Color
 import java.awt.event.ActionEvent
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -21,8 +24,15 @@ class SettingsWork: JFrame() {
     private lateinit var itemsFolderName: String
     private var itemsDir: String
     private var dirsList:  Set<String>
-    var serialPort: SerialPort? = null
-    var radioBtnsArray = arrayOf<JRadioButton>()
+    private var serialPort: SerialPort? = null
+    private var radioBtnsArray = arrayOf<JRadioButton>()
+    private var itemsNames: MutableSet<String>
+    private var centerPane = JPanel()
+    var checkedCount = 0
+    val itemsGroup = ButtonGroup()
+    val arduinoBtnsGroup = ButtonGroup()
+    var itemIsChecked = false
+    var arduinoBtnIsChecked = false
 
     init {
         val appProps = Properties()
@@ -32,6 +42,9 @@ class SettingsWork: JFrame() {
         itemsDir = "$curPath/items/$itemsFolderName"
         dirsList = listDirsUsingDirectoryStream(itemsDir)
         println("dirsList = $dirsList")
+        val itemsMap = getItemsMap(folderNamePath)
+        itemsNames = itemsMap.keys
+        println("keys = $itemsNames")
         createUI("Настройки")
 //        configureArduinoConnect(choosenPort)
 ////        sendToArduino("-")
@@ -41,6 +54,11 @@ class SettingsWork: JFrame() {
 
     private fun createUI(title: String) {
         setTitle(title)
+        addWindowListener(object : WindowAdapter() {
+            override fun windowClosing(e: WindowEvent) {
+                serialPort?.closePort()
+            }
+        })
 //        defaultCloseOperation = EXIT_ON_CLOSE
 //        setUpperBar()
 //        setCentralPart()
@@ -71,7 +89,9 @@ class SettingsWork: JFrame() {
                 val f = File(folderNamePath)
                 val out: OutputStream = FileOutputStream(f)
                 props.store(out, "folder properties")
-
+                val itemsMap = getItemsMap(folderNamePath)
+                itemsNames = itemsMap.keys
+                setCenterPane()
             } else {
                 label.text = "Open command canceled"
                 println("Open command canceled")
@@ -106,18 +126,22 @@ class SettingsWork: JFrame() {
                             println("totalStr = $totalStr")
                             if (totalStr.contains("n=")) { //если получили кол-во кнопок
                                 val lastEq = totalStr.lastIndexOf('=')
-                                val n: Int = totalStr.subSequence(lastEq+1,totalStr.length-1).toString().toInt()
+                                val n: Int = totalStr.subSequence(lastEq+1, if (totalStr.contains(";")) totalStr.length-1 else totalStr.length).toString().toInt()
                                 println("n is $n")
                                 if (n>0) { //создаем радиокнопки
-                                    val btnsGroup = ButtonGroup()
                                     for(i in 0..<n){
                                         val radioBtn = JRadioButton(i.toString())
                                         radioBtn.addActionListener {
                                             serialPort!!.writeString("$i;")
                                         }
-                                        btnsGroup.add(radioBtn)
+                                        arduinoBtnsGroup.add(radioBtn)
                                         radioBtnsArray = radioBtnsArray.plus(radioBtn)
+                                        radioBtn.addActionListener {
+                                            val curBtn = it.source as JRadioButton
+                                            checkRadioBtn(curBtn)
+                                        }
                                         northLowerBox.add(radioBtn)
+                                        northLowerBox.add(Box.createHorizontalStrut(10))
                                     }
                                     this.validate()
                                 }
@@ -125,6 +149,8 @@ class SettingsWork: JFrame() {
                             if (isNumeric(totalStr)) {
                                 println("$totalStr is numeric")
                                 radioBtnsArray[totalStr.toInt()].isSelected = true
+                                val curBtn = radioBtnsArray[totalStr.toInt()]
+                                checkRadioBtn(curBtn)
                             }
                             totalStr = ""
                         }
@@ -152,16 +178,78 @@ class SettingsWork: JFrame() {
         northBox.add(northUpperBox)
         northBox.add(northLowerBox)
 
-        val centerPane: JPanel = setCenterPane()
-
         add(northBox, BorderLayout.NORTH)
-        add(centerPane)
+        add(centerPane, BorderLayout.CENTER)
+        setCenterPane()
+        val southBox = Box(BoxLayout.X_AXIS)
+        val cancelBtn = JButton("Сбросить")
+        cancelBtn.addActionListener {
+            for (item in arduinoBtnsGroup.elements){
+                item.isEnabled = true
+                item.isSelected = false
+            }
+            arduinoBtnsGroup.clearSelection()
+            setCenterPane()
+            checkedCount = 0
+            arduinoBtnIsChecked = false
+            itemIsChecked = false
+        }
+        southBox.add(Box.createHorizontalGlue())
+        southBox.add(cancelBtn)
+        add(southBox, BorderLayout.SOUTH)
+    }
+
+    private fun checkRadioBtn(curBtn: JRadioButton) {
+        if (!arduinoBtnIsChecked) {
+            checkedCount++
+            arduinoBtnIsChecked = true
+            itemIsChecked = false
+        }
+        if (checkedCount == 2) {
+            curBtn.isEnabled = false
+            for (item in itemsGroup.elements) {
+                if (item.isSelected) {
+                    item.isEnabled = false
+                    item.text += "(" + curBtn.actionCommand + ")"
+                }
+            }
+            itemIsChecked = false
+            arduinoBtnIsChecked = false
+            checkedCount = 0
+        }
     }
 
     private fun setCenterPane(): JPanel {
-        val centerPane = JPanel()
-
-
+        remove(centerPane)
+        centerPane = JPanel()
+        centerPane.border = BorderFactory.createLineBorder(Color.BLUE, 2)
+        for (itemName in itemsNames){
+            val itemRBtn = JRadioButton(itemName)
+            itemRBtn.addActionListener {
+                if (!itemIsChecked) {
+                    checkedCount++
+                    itemIsChecked = true
+                    arduinoBtnIsChecked = false
+                }
+                if (checkedCount==2) {
+                    (it.source as JRadioButton).isEnabled = false
+                    for (item in arduinoBtnsGroup.elements){
+                        if (item.isSelected) {
+                            item.isEnabled = false
+                            (it.source as JRadioButton).text +="(" +item.text+")"
+                        }
+                    }
+                    itemIsChecked = false
+                    arduinoBtnIsChecked = false
+                    checkedCount = 0
+                }
+            }
+            itemsGroup.add(itemRBtn)
+            centerPane.add(itemRBtn)
+            centerPane.add(Box.createHorizontalStrut(20))
+        }
+        add(centerPane, BorderLayout.CENTER)
+        validate()
         return centerPane
     }
 

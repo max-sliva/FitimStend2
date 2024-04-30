@@ -88,7 +88,7 @@ class SimpleEx(title: String) : JFrame() {
         val northBoxMain = Box(BoxLayout.Y_AXIS)
         val itemsComboBox = JComboBox<String>()
 //        itemsComboBox.va
-        val itemsMap = getItemsMap()
+        val itemsMap = getItemsMap(folderNamePath)
 //        val curPath = System.getProperty("user.dir")
 //        val backgroundImage = "items/background.jpg"
 //        var filesSet =  listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
