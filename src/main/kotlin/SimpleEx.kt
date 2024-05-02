@@ -15,7 +15,18 @@ class SimpleEx(title: String) : JFrame() {
     private val textArea = JTextArea()
 //    private val imageHolder = JButton("")
     private val imageHolder = JLabel()
+    var itemsBtnsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
+
     init {
+        val myFile = File("$curPath/itemsBtns.dat")
+        val fin = FileInputStream(myFile)
+        val oin = ObjectInputStream(fin)
+//        var myHash2 = HashMap<String, String>()
+        itemsBtnsMap = oin.readObject() as HashMap<String, String>
+        println("hash from file = $itemsBtnsMap")
+        //todo соединить нажатие кнопки с показом экспоната и наоборот - выбор экспоната и зажигание светодиода
+        oin.close()
+        fin.close()
         createUI(title)
         println("filesSet = $filesSet")
     }

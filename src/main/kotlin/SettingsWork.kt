@@ -7,21 +7,18 @@ import java.awt.Color
 import java.awt.event.ActionEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.OutputStream
+import java.io.*
 import java.util.*
-import java.util.prefs.Preferences
+//import java.util.prefs.Preferences
 import javax.swing.*
 
 class SettingsWork: JFrame() {
-    private lateinit var prefs: Preferences
+//    private lateinit var prefs: Preferences
     private val curPath = System.getProperty("user.dir")
 //    val rootPath = curPath
     private val appConfigPath = "$curPath/app.properties"
     private val folderNamePath = "$curPath/folderName.properties"
-    private lateinit var itemsFolderName: String
+    private var itemsFolderName: String
     private var itemsDir: String
     private var dirsList:  Set<String>
     private var serialPort: SerialPort? = null
@@ -33,6 +30,7 @@ class SettingsWork: JFrame() {
     val arduinoBtnsGroup = ButtonGroup()
     var itemIsChecked = false
     var arduinoBtnIsChecked = false
+    var itemsBtnsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
 
     init {
         val appProps = Properties()
@@ -102,7 +100,8 @@ class SettingsWork: JFrame() {
         val comPorts = JComboBox(portNames) //создаем комбобокс с этим
         //списком
         val northLowerBox = Box(BoxLayout.X_AXIS) // или JPanel с FlowLayout сделать для номеров кнопок
-
+        val getProtsNumBtn = JButton("Получить кол-во кнопок")
+        getProtsNumBtn.isEnabled = false
         comPorts.selectedIndex = -1 //чтоб не было выбрано ничего в комбобоксе
         comPorts.addActionListener { arg: ActionEvent? ->  //слушатель выбора порта в комбобоксе
 // получаем название выбранного порта
@@ -158,16 +157,18 @@ class SettingsWork: JFrame() {
                 }
 //                serialPort!!.writeString("+")
 //                println("sent +")
+                Thread.sleep(2000) //чтобы точно успеть получить кол-во кнопок
+                getProtsNumBtn.isEnabled = true
             }
         }
-        val sendBtn = JButton("Получить кол-во кнопок")
-        sendBtn.addActionListener {
+        getProtsNumBtn.addActionListener {
             serialPort!!.writeString("+")
             println("sent +")
+            getProtsNumBtn.isEnabled = false
         }
         val boxWithComboAndBtn = Box(BoxLayout.X_AXIS)
         boxWithComboAndBtn.add(comPorts)
-        boxWithComboAndBtn.add(sendBtn)
+        boxWithComboAndBtn.add(getProtsNumBtn)
         boxWithComboAndBtn.add(Box.createHorizontalGlue())
         val northUpperBox = Box(BoxLayout.X_AXIS)
         northUpperBox.add(setItemsDirectory)
@@ -193,6 +194,7 @@ class SettingsWork: JFrame() {
             checkedCount = 0
             arduinoBtnIsChecked = false
             itemIsChecked = false
+            itemsBtnsMap.clear()
         }
         southBox.add(Box.createHorizontalGlue())
         southBox.add(cancelBtn)
@@ -210,6 +212,7 @@ class SettingsWork: JFrame() {
             for (item in itemsGroup.elements) {
                 if (item.isSelected) {
                     item.isEnabled = false
+                    itemsBtnsMap[item.text] = curBtn.actionCommand
                     item.text += "(" + curBtn.actionCommand + ")"
                 }
             }
@@ -236,6 +239,7 @@ class SettingsWork: JFrame() {
                     for (item in arduinoBtnsGroup.elements){
                         if (item.isSelected) {
                             item.isEnabled = false
+                            itemsBtnsMap[itemName] = item.text
                             (it.source as JRadioButton).text +="(" +item.text+")"
                         }
                     }
@@ -260,14 +264,24 @@ class SettingsWork: JFrame() {
     fun readProperties(){
 //        val rootPath = Thread.currentThread().contextClassLoader.getResource("").path
 
-        val appProps = Properties()
-        appProps.load(FileInputStream(appConfigPath))
-        println("props = ${appProps.entries}")
+        val myFile = File("$curPath/itemsBtns.dat")
+        val fin = FileInputStream(myFile)
+        val oin = ObjectInputStream(fin)
+//        var myHash2 = HashMap<String, String>()
+        val myHash2 = oin.readObject() as HashMap<String, String>
+        println("hash from file = $myHash2")
+        oin.close()
+        fin.close()
+
+
+//        val appProps = Properties()
+//        appProps.load(FileInputStream(appConfigPath))
+//        println("props = ${appProps.entries}")
 //        val appVersion = appProps.getProperty("version")
 //        println("version = $appVersion")
     }
 
-    fun setProperties() {
+//    fun setProperties() {
 //        // This will define a node in which the preferences can be stored
 //        prefs = Preferences.userRoot().node(this.javaClass.name)
 //        val ID1 = "Test1"
@@ -279,7 +293,7 @@ class SettingsWork: JFrame() {
 //        println(prefs.getBoolean(ID1, true))
 //        // Define a string with default "Hello World
 //        println(prefs.get(ID2, "Hello World"))
-//        // Define a integer with default 50
+//        // Define an integer with default 50
 //        println(prefs.getInt(ID3, 50))
 //        println("all prefs = $prefs")
         // now set the values
@@ -289,22 +303,30 @@ class SettingsWork: JFrame() {
 
         // Delete the preference settings for the first value
 //        prefs.remove(ID1)
-    }
+//    }
 
-    fun saveProperties() {
-        try {
-            val USER_NAME = "Some name"
-            val DP_ADDRESS = "Some url"
-            //create a properties file
-            val props = Properties()
-            props.setProperty("User name", USER_NAME)
-            props.setProperty("Display picture address", DP_ADDRESS)
-            val f = File(appConfigPath)
-            val out: OutputStream = FileOutputStream(f)
-            //If you wish to make some comments
-            props.store(out, "User properties")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private fun saveProperties() {
+        println("items-buttons map = $itemsBtnsMap")
+        val myFile = File("itemsBtns.dat")
+        val f = FileOutputStream(myFile)
+        val o = ObjectOutputStream(f)
+        o.writeObject(itemsBtnsMap)
+        o.close()
+        f.close()
+
+//        try {
+//            val ITEM_NAME = "Some name"
+//            val PORT_NUMBER = "Some url"
+//            //create a properties file
+//            val props = Properties()
+//            props.setProperty("Item name", ITEM_NAME)
+//            props.setProperty("Port number", PORT_NUMBER)
+//            val f = File(appConfigPath)
+//            val out: OutputStream = FileOutputStream(f)
+//            //If you wish to make some comments
+//            props.store(out, "items with button ports association")
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
     }
 }
