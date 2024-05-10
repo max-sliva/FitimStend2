@@ -58,6 +58,10 @@ fun listDirsUsingDirectoryStream(dir: String?): Set<String> {
     return fileSet
 }
 
+fun isNumeric(toCheck: String): Boolean {
+    return toCheck.all { char -> char.isDigit() }
+}
+
 fun getItemsMap(folderNamePath: String): MutableMap<String, Set<String>> {
     val curPath = System.getProperty("user.dir")
     val backgroundImage = "items/background.jpg"

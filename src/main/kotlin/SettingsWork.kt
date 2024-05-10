@@ -100,8 +100,8 @@ class SettingsWork: JFrame() {
         val comPorts = JComboBox(portNames) //создаем комбобокс с этим
         //списком
         val northLowerBox = Box(BoxLayout.X_AXIS) // или JPanel с FlowLayout сделать для номеров кнопок
-        val getProtsNumBtn = JButton("Получить кол-во кнопок")
-        getProtsNumBtn.isEnabled = false
+        val getPortsNumBtn = JButton("Получить кол-во кнопок")
+        getPortsNumBtn.isEnabled = false
         comPorts.selectedIndex = -1 //чтоб не было выбрано ничего в комбобоксе
         comPorts.addActionListener { arg: ActionEvent? ->  //слушатель выбора порта в комбобоксе
 // получаем название выбранного порта
@@ -109,6 +109,22 @@ class SettingsWork: JFrame() {
             //если serialPort еще не связана с портом или текущий порт не равен выбранному в комбо-боксе
             if (serialPort == null || !serialPort!!.portName.contains(choosenPort)) {
                 serialPort = SerialPort(choosenPort) //задаем выбранный порт
+//                val ITEM_NAME = "Some name"
+            val PORT_NAME = choosenPort
+            //create a properties file
+            val props = Properties()
+//            props.setProperty("Item name", ITEM_NAME)
+            props.setProperty("Port name", PORT_NAME)
+            val f = File(appConfigPath)
+            val out: OutputStream = FileOutputStream(f)
+            //If you wish to make some comments
+            props.store(out, "port name")
+//                val myFile = File("port.dat")
+//                val f = FileOutputStream(myFile)
+//                val o = ObjectOutputStream(f)
+//                o.writeObject(serialPort)
+//                o.close()
+//                f.close()
                 serialPort!!.openPort() //открываем порт
                 //задаем параметры порта, 9600 - скорость, такую же нужно задать для Serial.begin в Arduino
                 serialPort!!.setParams(9600, 8, 1, 0) //остальные параметры стандартные
@@ -158,17 +174,17 @@ class SettingsWork: JFrame() {
 //                serialPort!!.writeString("+")
 //                println("sent +")
                 Thread.sleep(2000) //чтобы точно успеть получить кол-во кнопок
-                getProtsNumBtn.isEnabled = true
+                getPortsNumBtn.isEnabled = true
             }
         }
-        getProtsNumBtn.addActionListener {
+        getPortsNumBtn.addActionListener {
             serialPort!!.writeString("+")
             println("sent +")
-            getProtsNumBtn.isEnabled = false
+            getPortsNumBtn.isEnabled = false
         }
         val boxWithComboAndBtn = Box(BoxLayout.X_AXIS)
         boxWithComboAndBtn.add(comPorts)
-        boxWithComboAndBtn.add(getProtsNumBtn)
+        boxWithComboAndBtn.add(getPortsNumBtn)
         boxWithComboAndBtn.add(Box.createHorizontalGlue())
         val northUpperBox = Box(BoxLayout.X_AXIS)
         northUpperBox.add(setItemsDirectory)
@@ -257,9 +273,9 @@ class SettingsWork: JFrame() {
         return centerPane
     }
 
-    fun isNumeric(toCheck: String): Boolean {
-        return toCheck.all { char -> char.isDigit() }
-    }
+//    fun isNumeric(toCheck: String): Boolean {
+//        return toCheck.all { char -> char.isDigit() }
+//    }
 
     fun readProperties(){
 //        val rootPath = Thread.currentThread().contextClassLoader.getResource("").path

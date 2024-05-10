@@ -1,4 +1,6 @@
 import com.formdev.flatlaf.FlatLightLaf
+import jssc.SerialPort
+import jssc.SerialPortEvent
 import java.awt.*
 import java.awt.event.ActionEvent
 import java.io.*
@@ -11,11 +13,13 @@ class SimpleEx(title: String) : JFrame() {
     private val curPath = System.getProperty("user.dir")
     private val folderNamePath = "$curPath/folderName.properties"
     private val backgroundImage = "items/background.jpg"
-    private var filesSet =  listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
+    private var filesSet = listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
     private val textArea = JTextArea()
-//    private val imageHolder = JButton("")
+
+    //    private val imageHolder = JButton("")
     private val imageHolder = JLabel()
     var itemsBtnsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
+    private var serialPort: SerialPort? = null
 
     init {
         val myFile = File("$curPath/itemsBtns.dat")
@@ -24,11 +28,39 @@ class SimpleEx(title: String) : JFrame() {
 //        var myHash2 = HashMap<String, String>()
         itemsBtnsMap = oin.readObject() as HashMap<String, String>
         println("hash from file = $itemsBtnsMap")
-        //todo соединить нажатие кнопки с показом экспоната и наоборот - выбор экспоната и зажигание светодиода
         oin.close()
         fin.close()
         createUI(title)
         println("filesSet = $filesSet")
+        val appConfigPath = "$curPath/app.properties"
+        val appProps = Properties()
+        appProps.load(FileInputStream(appConfigPath))
+        println("props = ${appProps.entries}")
+        val portName = appProps.getProperty("Port name") //todo проверить, чтобы в линуксе имя с пробелом читалось
+        println("portName = $portName")
+        serialPort = SerialPort(portName)
+        serialPort!!.openPort() //открываем порт
+        //задаем параметры порта, 9600 - скорость, такую же нужно задать для Serial.begin в Arduino
+        serialPort!!.setParams(9600, 8, 1, 0) //остальные параметры стандартные
+        var totalStr = ""
+        serialPort!!.addEventListener { event: SerialPortEvent ->
+            if (event.isRXCHAR) { // если есть данные для приема
+                var str = serialPort!!.readString()
+                str = str.trim()
+                if (!str.contains("\n ;") && str != "" && str != ";") {
+//                    println("received $str") //выводим принятую строку
+                    totalStr += str
+                    println("!!!totalStr = $totalStr")
+                }
+                if (str.contains("\n") || str.contains(";")) {
+                    if (isNumeric(totalStr)) {
+                    //todo соединить нажатие кнопки с показом экспоната и наоборот - выбор экспоната и зажигание светодиода
+                //и сделать обратный мап - номера с экспонатами
+                    }
+                    totalStr = ""
+                }
+            }
+        }
     }
 
     fun getFilesSet() = filesSet
@@ -108,7 +140,7 @@ class SimpleEx(title: String) : JFrame() {
         val comboBoxModel = DefaultComboBoxModel<String>()
         itemsComboBox.setRenderer(MyComboBoxRenderer("Выберите экспонат: ▼"));
         comboBoxModel.addAll(itemsList)
-        itemsComboBox.addActionListener{e->
+        itemsComboBox.addActionListener { e ->
             println("selected = ${e.actionCommand}")
             println("selected = ${itemsComboBox.selectedItem}")
             val tempList = itemsMap[itemsComboBox.selectedItem]?.toList()
@@ -125,8 +157,8 @@ class SimpleEx(title: String) : JFrame() {
             var imageHeight = itemImage.iconHeight
             val newWidth = 500.0
             val newHeight = 800.0
-            if (itemImage.iconWidth>itemImage.iconHeight) {
-                val ratio = imageWidth/ newWidth
+            if (itemImage.iconWidth > itemImage.iconHeight) {
+                val ratio = imageWidth / newWidth
                 imageWidth = newWidth.toInt()
                 imageHeight = (itemImage.iconHeight / ratio).toInt()
             } else {
@@ -161,10 +193,10 @@ class SimpleEx(title: String) : JFrame() {
         lowerNorthBox.add(fontPlus)
         fontPlus.preferredSize = Dimension(70, fontPlus.minimumSize.height)
         fontMinus.preferredSize = Dimension(70, fontMinus.minimumSize.height)
-        fontPlus.addActionListener{e->
+        fontPlus.addActionListener { e ->
             fontSizeChange(e)
         }
-        fontMinus.addActionListener {e->
+        fontMinus.addActionListener { e ->
             fontSizeChange(e)
         }
         northBoxMain.add(upperNorthBox)
@@ -176,7 +208,7 @@ class SimpleEx(title: String) : JFrame() {
         var font = textArea.font
         var fontSize = font.size2D
         println("fontSize = $fontSize")
-        if (e.actionCommand=="+") fontSize++ else fontSize--
+        if (e.actionCommand == "+") fontSize++ else fontSize--
         font = font.deriveFont(fontSize)
         textArea.font = font
     }
@@ -195,7 +227,8 @@ class SimpleEx(title: String) : JFrame() {
         println("dirsList = $dirsList")
         //var setOfItems =
 //    var itemsMap = mutableMapOf<String, String>()
-        val itemsMap2 = mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
+        val itemsMap2 =
+            mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
         dirsList.forEach {
             val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
             val txtFile = filesList.find { it.contains(".txt") }
@@ -206,7 +239,7 @@ class SimpleEx(title: String) : JFrame() {
             val file = File(txtFilePath)
             val ioStream = BufferedReader(FileReader(file))
             val firstStringInFile = ioStream.readLine()
-            val s = if (firstStringInFile=="") ioStream.readLine() else firstStringInFile //если первая строка пустая
+            val s = if (firstStringInFile == "") ioStream.readLine() else firstStringInFile //если первая строка пустая
 //        println("for $it: $filesList caption = $s")
 //        itemsMap[s] = "$itemsDir/$it"
             itemsMap2[s] = setOf(txtFilePath, imgFilePath)
@@ -217,7 +250,7 @@ class SimpleEx(title: String) : JFrame() {
         return itemsMap2
     }
 
-    private fun setCentralPart(){
+    private fun setCentralPart() {
         val pane = JPanel(GridBagLayout())
 //        pane.border = BorderFactory.createLineBorder(Color.GREEN, 3)
 //        pane.layout = GridBagLayout()
@@ -253,8 +286,8 @@ class SimpleEx(title: String) : JFrame() {
         var imageHeight = itemImage.iconHeight
         val newWidth = 500.0
         val newHeight = 800.0
-        if (itemImage.iconWidth>itemImage.iconHeight) {
-            val ratio = imageWidth/ newWidth
+        if (itemImage.iconWidth > itemImage.iconHeight) {
+            val ratio = imageWidth / newWidth
             imageWidth = newWidth.toInt()
             imageHeight = (itemImage.iconHeight / ratio).toInt()
         } else {
@@ -324,7 +357,7 @@ private fun createAndShowGUI() {
     }
     pane.add(showMainBtn, c)
     c.gridx = 2
-    pane.add(Box.createHorizontalGlue(),c)
+    pane.add(Box.createHorizontalGlue(), c)
     val showSettingsBtn = JButton("Настройки")
     c.gridx = 4 //aligned with button 2
 //        c.gridwidth = 3 //2 columns wide
@@ -356,7 +389,7 @@ private fun createAndShowGUI() {
 
 fun main() {
     FlatLightLaf.setup()
-    UIManager.setLookAndFeel( FlatLightLaf() )
+    UIManager.setLookAndFeel(FlatLightLaf())
     val looks = UIManager.getInstalledLookAndFeels()
     for (look in looks) {
         println(look.className)
