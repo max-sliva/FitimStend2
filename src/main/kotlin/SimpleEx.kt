@@ -19,6 +19,7 @@ class SimpleEx(title: String) : JFrame() {
     //    private val imageHolder = JButton("")
     private val imageHolder = JLabel()
     var itemsBtnsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
+    var btnsItemsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
     private var serialPort: SerialPort? = null
 
     init {
@@ -28,6 +29,11 @@ class SimpleEx(title: String) : JFrame() {
 //        var myHash2 = HashMap<String, String>()
         itemsBtnsMap = oin.readObject() as HashMap<String, String>
         println("hash from file = $itemsBtnsMap")
+        itemsBtnsMap.forEach { (item, btn) ->
+            btnsItemsMap[btn] = item
+        }
+        println("btnsItemsMap = $btnsItemsMap")
+
         oin.close()
         fin.close()
         createUI(title)
