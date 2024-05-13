@@ -61,7 +61,7 @@ class SimpleEx(title: String) : JFrame() {
                 if (str.contains("\n") || str.contains(";")) {
                     if (isNumeric(totalStr)) {
                     //todo соединить нажатие кнопки с показом экспоната и наоборот - выбор экспоната и зажигание светодиода
-                //и сделать обратный мап - номера с экспонатами
+
                     }
                     totalStr = ""
                 }
@@ -148,8 +148,12 @@ class SimpleEx(title: String) : JFrame() {
         comboBoxModel.addAll(itemsList)
         itemsComboBox.addActionListener { e ->
             println("selected = ${e.actionCommand}")
-            println("selected = ${itemsComboBox.selectedItem}")
+            val curItem = itemsComboBox.selectedItem
+            println("selected = $curItem")
+            println("number to Arduino = ${itemsBtnsMap[curItem]}")
+            serialPort!!.writeString("${itemsBtnsMap[curItem]};")
             val tempList = itemsMap[itemsComboBox.selectedItem]?.toList()
+            //todo дальнейшее перенести в ф-ию, чтобы удобнее было вызывать при нажатии кнопки на ардуино
             filesSet = listOf()
             filesSet = filesSet.plus(tempList!!.first())
             filesSet = filesSet.plus(tempList.last())
