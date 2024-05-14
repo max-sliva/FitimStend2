@@ -15,11 +15,11 @@ class SimpleEx(title: String) : JFrame() {
     private val backgroundImage = "items/background.jpg"
     private var filesSet = listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
     private val textArea = JTextArea()
-
+    val itemsComboBox = JComboBox<String>()
     //    private val imageHolder = JButton("")
     private val imageHolder = JLabel()
     var itemsBtnsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
-    var btnsItemsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
+    var btnsItemsMap = HashMap<String, String>() //мап для хранения связи Arduino button - item
     private var serialPort: SerialPort? = null
 
     init {
@@ -60,8 +60,11 @@ class SimpleEx(title: String) : JFrame() {
                 }
                 if (str.contains("\n") || str.contains(";")) {
                     if (isNumeric(totalStr)) {
-                    //todo соединить нажатие кнопки с показом экспоната и наоборот - выбор экспоната и зажигание светодиода
-
+                        val item = btnsItemsMap[totalStr]
+                        val itemsMap = getItemsMap(folderNamePath)
+                        val tempList = itemsMap[item]?.toList()
+                        itemsComboBox.selectedItem = item
+                        showItem(tempList)
                     }
                     totalStr = ""
                 }
@@ -135,8 +138,6 @@ class SimpleEx(title: String) : JFrame() {
         upperNorthBox.add(Box.createHorizontalGlue())
 
         val northBoxMain = Box(BoxLayout.Y_AXIS)
-        val itemsComboBox = JComboBox<String>()
-//        itemsComboBox.va
         val itemsMap = getItemsMap(folderNamePath)
 //        val curPath = System.getProperty("user.dir")
 //        val backgroundImage = "items/background.jpg"
@@ -153,42 +154,7 @@ class SimpleEx(title: String) : JFrame() {
             println("number to Arduino = ${itemsBtnsMap[curItem]}")
             serialPort!!.writeString("${itemsBtnsMap[curItem]};")
             val tempList = itemsMap[itemsComboBox.selectedItem]?.toList()
-            //todo дальнейшее перенести в ф-ию, чтобы удобнее было вызывать при нажатии кнопки на ардуино
-            filesSet = listOf()
-            filesSet = filesSet.plus(tempList!!.first())
-            filesSet = filesSet.plus(tempList.last())
-            println("filesSet = $filesSet")
-            val text = File(filesSet.first()).readText()
-            textArea.text = text
-            var itemImage = ImageIcon(filesSet.last())
-            var image = itemImage.image
-//        val imageHolder = frame.getImageHolder()
-            var imageWidth = itemImage.iconWidth
-            var imageHeight = itemImage.iconHeight
-            val newWidth = 500.0
-            val newHeight = 800.0
-            if (itemImage.iconWidth > itemImage.iconHeight) {
-                val ratio = imageWidth / newWidth
-                imageWidth = newWidth.toInt()
-                imageHeight = (itemImage.iconHeight / ratio).toInt()
-            } else {
-                val ratio = imageHeight / newHeight
-                imageHeight = newHeight.toInt()
-                imageWidth = (itemImage.iconWidth / ratio).toInt()
-            }
-
-//        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
-            var newimg = image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
-//            val imageWidth = itemImage.iconWidth
-//            val newWidth = 500.0
-//            val ratio = imageWidth / newWidth
-//            val imageHeight = itemImage.iconHeight / ratio
-//            var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
-            imageHolder.icon = ImageIcon(newimg)
-            imageHolder.preferredSize = Dimension(newWidth.toInt(), imageHolder.minimumSize.height)
-//            imageHolder.horizontalAlignment = JLabel.CENTER
-////        imageHolder.icon = itemImage
-//            imageHolder.preferredSize = Dimension(400, 300)
+            showItem(tempList)
         }
         itemsComboBox.model = comboBoxModel
         val lowerNorthBox = Box(BoxLayout.X_AXIS)
@@ -214,6 +180,45 @@ class SimpleEx(title: String) : JFrame() {
         add(northBoxMain, BorderLayout.NORTH)
     }
 
+    private fun showItem(tempList: List<String>?) { //ф-ия для показа экспоната
+        //todo попробовать сделать другой вариант компоновки, чтобы нормально картинки показывать
+        filesSet = listOf()
+        filesSet = filesSet.plus(tempList!!.first())
+        filesSet = filesSet.plus(tempList.last())
+        println("filesSet = $filesSet")
+        val text = File(filesSet.first()).readText()
+        textArea.text = text
+        var itemImage = ImageIcon(filesSet.last())
+        var image = itemImage.image
+        //        val imageHolder = frame.getImageHolder()
+        var imageWidth = itemImage.iconWidth
+        var imageHeight = itemImage.iconHeight
+        val newWidth = 500.0
+        val newHeight = 800.0
+        if (itemImage.iconWidth > itemImage.iconHeight) {
+            val ratio = imageWidth / newWidth
+            imageWidth = newWidth.toInt()
+            imageHeight = (itemImage.iconHeight / ratio).toInt()
+        } else {
+            val ratio = imageHeight / newHeight
+            imageHeight = newHeight.toInt()
+            imageWidth = (itemImage.iconWidth / ratio).toInt()
+        }
+
+        //        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+        var newimg = image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
+        //            val imageWidth = itemImage.iconWidth
+        //            val newWidth = 500.0
+        //            val ratio = imageWidth / newWidth
+        //            val imageHeight = itemImage.iconHeight / ratio
+        //            var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
+        imageHolder.icon = ImageIcon(newimg)
+        imageHolder.preferredSize = Dimension(newWidth.toInt(), imageHolder.minimumSize.height)
+        //            imageHolder.horizontalAlignment = JLabel.CENTER
+        ////        imageHolder.icon = itemImage
+        //            imageHolder.preferredSize = Dimension(400, 300)
+    }
+
     private fun fontSizeChange(e: ActionEvent) {
         var font = textArea.font
         var fontSize = font.size2D
@@ -223,42 +228,42 @@ class SimpleEx(title: String) : JFrame() {
         textArea.font = font
     }
 
-    private fun getItemsMap(): MutableMap<String, Set<String>> {
-        val curPath = System.getProperty("user.dir")
-        val backgroundImage = "items/background.jpg"
-        println("user dir = $curPath")
-//    var filesSet =  listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
-        val appProps = Properties()
-        appProps.load(FileInputStream(folderNamePath))
-        println("props = ${appProps.entries}")
-        val itemsFolderName = appProps.getProperty("itemsFolder")
-        val itemsDir = "$curPath/items/$itemsFolderName"
-        val dirsList = listDirsUsingDirectoryStream(itemsDir)
-        println("dirsList = $dirsList")
-        //var setOfItems =
-//    var itemsMap = mutableMapOf<String, String>()
-        val itemsMap2 =
-            mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
-        dirsList.forEach {
-            val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
-            val txtFile = filesList.find { it.contains(".txt") }
-            val imgFile = filesList.find { it != txtFile }
-            val txtFilePath = "$itemsDir/$it/$txtFile"
-            val imgFilePath = "$itemsDir/$it/$imgFile"
-//        val filesSet = setOf(txtFilePath, imgFilePath)
-            val file = File(txtFilePath)
-            val ioStream = BufferedReader(FileReader(file))
-            val firstStringInFile = ioStream.readLine()
-            val s = if (firstStringInFile == "") ioStream.readLine() else firstStringInFile //если первая строка пустая
-//        println("for $it: $filesList caption = $s")
-//        itemsMap[s] = "$itemsDir/$it"
-            itemsMap2[s] = setOf(txtFilePath, imgFilePath)
-        }
-        itemsMap2.forEach {
-            println("${it.key} : ${it.value}")
-        }
-        return itemsMap2
-    }
+//    private fun getItemsMap(): MutableMap<String, Set<String>> {
+//        val curPath = System.getProperty("user.dir")
+//        val backgroundImage = "items/background.jpg"
+//        println("user dir = $curPath")
+////    var filesSet =  listOf("$curPath/welcome.txt", "$curPath/$backgroundImage")
+//        val appProps = Properties()
+//        appProps.load(FileInputStream(folderNamePath))
+//        println("props = ${appProps.entries}")
+//        val itemsFolderName = appProps.getProperty("itemsFolder")
+//        val itemsDir = "$curPath/items/$itemsFolderName"
+//        val dirsList = listDirsUsingDirectoryStream(itemsDir)
+//        println("dirsList = $dirsList")
+//        //var setOfItems =
+////    var itemsMap = mutableMapOf<String, String>()
+//        val itemsMap2 =
+//            mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
+//        dirsList.forEach {
+//            val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
+//            val txtFile = filesList.find { it.contains(".txt") }
+//            val imgFile = filesList.find { it != txtFile }
+//            val txtFilePath = "$itemsDir/$it/$txtFile"
+//            val imgFilePath = "$itemsDir/$it/$imgFile"
+////        val filesSet = setOf(txtFilePath, imgFilePath)
+//            val file = File(txtFilePath)
+//            val ioStream = BufferedReader(FileReader(file))
+//            val firstStringInFile = ioStream.readLine()
+//            val s = if (firstStringInFile == "") ioStream.readLine() else firstStringInFile //если первая строка пустая
+////        println("for $it: $filesList caption = $s")
+////        itemsMap[s] = "$itemsDir/$it"
+//            itemsMap2[s] = setOf(txtFilePath, imgFilePath)
+//        }
+//        itemsMap2.forEach {
+//            println("${it.key} : ${it.value}")
+//        }
+//        return itemsMap2
+//    }
 
     private fun setCentralPart() {
         val pane = JPanel(GridBagLayout())
