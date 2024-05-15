@@ -320,7 +320,6 @@ class SimpleEx(title: String) : JFrame() {
         imageHolder.preferredSize = Dimension(400, 300)
         pane.add(imageHolder, c)
 
-
 //        button = JButton("Long-Named Button 4")
 ////        c.fill = GridBagConstraints.HORIZONTAL
 //        c.fill = GridBagConstraints.BOTH
