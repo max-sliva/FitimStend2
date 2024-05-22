@@ -3,6 +3,8 @@ import jssc.SerialPort
 import jssc.SerialPortEvent
 import java.awt.*
 import java.awt.event.ActionEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.io.*
 import java.util.*
 import javax.swing.*
@@ -189,34 +191,56 @@ class SimpleEx(title: String) : JFrame() {
         val text = File(filesSet.first()).readText()
         textArea.text = text
         var itemImage = ImageIcon(filesSet.last())
-        var image = itemImage.image
-        //        val imageHolder = frame.getImageHolder()
-        var imageWidth = itemImage.iconWidth
-        var imageHeight = itemImage.iconHeight
-        val newWidth = 500.0
-        val newHeight = 800.0
-        if (itemImage.iconWidth > itemImage.iconHeight) {
-            val ratio = imageWidth / newWidth
-            imageWidth = newWidth.toInt()
-            imageHeight = (itemImage.iconHeight / ratio).toInt()
-        } else {
-            val ratio = imageHeight / newHeight
-            imageHeight = newHeight.toInt()
-            imageWidth = (itemImage.iconWidth / ratio).toInt()
-        }
+        val newWidth = 500
+        val newimg = getScaledImage(itemImage, newWidth, 800)
 
-        //        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
-        var newimg = image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
-        //            val imageWidth = itemImage.iconWidth
-        //            val newWidth = 500.0
-        //            val ratio = imageWidth / newWidth
-        //            val imageHeight = itemImage.iconHeight / ratio
-        //            var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
         imageHolder.icon = ImageIcon(newimg)
-        imageHolder.preferredSize = Dimension(newWidth.toInt(), imageHolder.minimumSize.height)
+        imageHolder.preferredSize = Dimension(newWidth, imageHolder.minimumSize.height)
+        imageHolder.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(mouseEvent: MouseEvent?) {
+                makeImageWindow(itemImage)
+            }
+        })
         //            imageHolder.horizontalAlignment = JLabel.CENTER
         ////        imageHolder.icon = itemImage
         //            imageHolder.preferredSize = Dimension(400, 300)
+    }
+
+    private fun makeImageWindow(itemImage: ImageIcon) {
+        println("image = ${itemImage}")
+        val imageWindow = JDialog()
+        val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
+        val device = graphics.defaultScreenDevice
+        device.setFullScreenWindow(imageWindow) //for full screen
+        imageWindow.isVisible = true
+        var newimg = getScaledImage(itemImage, imageWindow.width, imageWindow.height)
+        val imageLabel = JLabel().apply { icon = ImageIcon(newimg) }
+        imageLabel.setHorizontalAlignment(JLabel.CENTER);
+        imageLabel.setVerticalAlignment(JLabel.CENTER);
+        imageLabel.border = BorderFactory.createLineBorder(Color.BLUE, 2)
+        imageWindow.add(imageLabel, BorderLayout.CENTER)
+        imageLabel.addMouseListener(object : MouseAdapter() {
+                override fun mousePressed(mouseEvent: MouseEvent?) {
+                    imageWindow.dispose()
+                }
+            })
+        //todo добавить кнопки + и - для изменения размера картинки
+    }
+
+    private fun getScaledImage(itemImage: ImageIcon, newWidth: Int, newHeight: Int): Image{
+        var image = itemImage.image
+        var imageWidth = itemImage.iconWidth
+        var imageHeight = itemImage.iconHeight
+        if (itemImage.iconWidth > itemImage.iconHeight) {
+            val ratio = imageWidth.toFloat() / newWidth
+            imageWidth = newWidth
+            imageHeight = (itemImage.iconHeight / ratio).toInt()
+        } else {
+            val ratio = imageHeight.toFloat() / newHeight
+            imageHeight = newHeight
+            imageWidth = (itemImage.iconWidth / ratio).toInt()
+        }
+        return image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH)
     }
 
     private fun fontSizeChange(e: ActionEvent) {
