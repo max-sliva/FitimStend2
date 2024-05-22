@@ -5,6 +5,7 @@ import java.awt.*
 import java.awt.event.ActionEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.awt.event.WindowEvent
 import java.io.*
 import java.util.*
 import javax.swing.*
@@ -23,7 +24,8 @@ class SimpleEx(title: String) : JFrame() {
     var itemsBtnsMap = HashMap<String, String>() //мап для хранения связи item - Arduino button
     var btnsItemsMap = HashMap<String, String>() //мап для хранения связи Arduino button - item
     private var serialPort: SerialPort? = null
-
+    private val imageLabel = JLabel()
+//    var imageWindow: JFrame? = null
     init {
         val myFile = File("$curPath/itemsBtns.dat")
         val fin = FileInputStream(myFile)
@@ -198,6 +200,7 @@ class SimpleEx(title: String) : JFrame() {
         imageHolder.preferredSize = Dimension(newWidth, imageHolder.minimumSize.height)
         imageHolder.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(mouseEvent: MouseEvent?) {
+//                if (imageWindow!=null) imageWindow!!.isVisible = false
                 makeImageWindow(itemImage)
             }
         })
@@ -207,24 +210,42 @@ class SimpleEx(title: String) : JFrame() {
     }
 
     private fun makeImageWindow(itemImage: ImageIcon) {
-        println("image = ${itemImage}")
-        val imageWindow = JDialog()
+        //todo переделать, сделать постоянное окно, сначала невидимое, потом в нем просто у лейбла меняем картинку
+        println("image = $itemImage")
+        val imageWindow = JDialog() //.apply { defaultCloseOperation = DISPOSE_ON_CLOSE }
+//        imageWindow.extendedState = imageWindow.extendedState or MAXIMIZED_BOTH
+        imageWindow?.isVisible = true
         val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
         val device = graphics.defaultScreenDevice
         device.setFullScreenWindow(imageWindow) //for full screen
-        imageWindow.isVisible = true
-        var newimg = getScaledImage(itemImage, imageWindow.width, imageWindow.height)
-        val imageLabel = JLabel().apply { icon = ImageIcon(newimg) }
-        imageLabel.setHorizontalAlignment(JLabel.CENTER);
-        imageLabel.setVerticalAlignment(JLabel.CENTER);
+        var newimg = getScaledImage(itemImage, imageWindow!!.width, imageWindow!!.height)
+        imageLabel.icon = ImageIcon(newimg)
+        imageLabel.setHorizontalAlignment(JLabel.CENTER)
+        imageLabel.setVerticalAlignment(JLabel.CENTER)
         imageLabel.border = BorderFactory.createLineBorder(Color.BLUE, 2)
-        imageWindow.add(imageLabel, BorderLayout.CENTER)
+        imageWindow!!.add(imageLabel, BorderLayout.CENTER)
         imageLabel.addMouseListener(object : MouseAdapter() {
-                override fun mousePressed(mouseEvent: MouseEvent?) {
-                    imageWindow.dispose()
-                }
-            })
-        //todo добавить кнопки + и - для изменения размера картинки
+            override fun mousePressed(mouseEvent: MouseEvent?) {
+                    imageWindow!!.isVisible = false
+//                    imageWindow!!.removeAll()
+//                imageWindow!!.dispose()
+//                imageWindow.dispatchEvent( WindowEvent(imageWindow, WindowEvent.WINDOW_CLOSING))
+
+            }
+        })
+        val sizePlusBtn = JButton("+")
+        val sizeMinusBtn = JButton("-")
+        sizePlusBtn.addActionListener {
+            val width = imageLabel.icon.iconWidth
+            newimg = getScaledImage(itemImage, width + 10, -1)
+            imageLabel.icon = ImageIcon(newimg)
+        }
+        sizeMinusBtn.addActionListener {
+            val width = imageLabel.icon.iconWidth
+            newimg = getScaledImage(itemImage, width - 10, -1)
+            imageLabel.icon = ImageIcon(newimg)
+        }
+//        imageWindow?.add(Box(BoxLayout.X_AXIS).apply { add(sizePlusBtn); add(sizeMinusBtn) }, BorderLayout.NORTH)
     }
 
     private fun getScaledImage(itemImage: ImageIcon, newWidth: Int, newHeight: Int): Image{
@@ -240,6 +261,7 @@ class SimpleEx(title: String) : JFrame() {
             imageHeight = newHeight
             imageWidth = (itemImage.iconWidth / ratio).toInt()
         }
+        if (newWidth<0 || newHeight <0) image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH)
         return image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH)
     }
 
@@ -319,24 +341,9 @@ class SimpleEx(title: String) : JFrame() {
 //        imageHolder.border = BorderFactory.createLineBorder(Color.RED, 2)
 //        val filesSet = frame.getFilesSet()
         var itemImage = ImageIcon(filesSet.last())
-        var image = itemImage.image
-//        val imageHolder = frame.getImageHolder()
-        var imageWidth = itemImage.iconWidth
-        var imageHeight = itemImage.iconHeight
-        val newWidth = 500.0
-        val newHeight = 800.0
-        if (itemImage.iconWidth > itemImage.iconHeight) {
-            val ratio = imageWidth / newWidth
-            imageWidth = newWidth.toInt()
-            imageHeight = (itemImage.iconHeight / ratio).toInt()
-        } else {
-            val ratio = imageHeight / newHeight
-            imageHeight = newHeight.toInt()
-            imageWidth = (itemImage.iconWidth / ratio).toInt()
-        }
 
-//        var newimg = image.getScaledInstance(newWidth.toInt(), imageHeight.toInt(), Image.SCALE_SMOOTH) // задаем размер
-        var newimg = image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
+        var newimg = getScaledImage(itemImage, 500, 800)
+//            image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH) // задаем размер
         imageHolder.icon = ImageIcon(newimg)
         imageHolder.border = BorderFactory.createLineBorder(Color.RED, 2)
         imageHolder.horizontalAlignment = JLabel.CENTER
