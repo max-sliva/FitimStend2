@@ -25,7 +25,7 @@ class SimpleEx(title: String) : JFrame() {
     var btnsItemsMap = HashMap<String, String>() //мап для хранения связи Arduino button - item
     private var serialPort: SerialPort? = null
     private val imageLabel = JLabel()
-//    var imageWindow: JFrame? = null
+    var imageWindow = JDialog()
     init {
         val myFile = File("$curPath/itemsBtns.dat")
         val fin = FileInputStream(myFile)
@@ -74,6 +74,11 @@ class SimpleEx(title: String) : JFrame() {
                 }
             }
         }
+        imageWindow!!.add(imageLabel, BorderLayout.CENTER)
+        val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
+        val device = graphics.defaultScreenDevice
+        device.setFullScreenWindow(imageWindow) //for full screen
+        imageWindow.isVisible = false
     }
 
     fun getFilesSet() = filesSet
@@ -185,7 +190,6 @@ class SimpleEx(title: String) : JFrame() {
     }
 
     private fun showItem(tempList: List<String>?) { //ф-ия для показа экспоната
-        //todo попробовать сделать другой вариант компоновки, чтобы нормально картинки показывать
         filesSet = listOf()
         filesSet = filesSet.plus(tempList!!.first())
         filesSet = filesSet.plus(tempList.last())
@@ -209,16 +213,12 @@ class SimpleEx(title: String) : JFrame() {
         //            imageHolder.preferredSize = Dimension(400, 300)
     }
 
-    private fun makeImageWindow(itemImage: ImageIcon) {
-        //todo переделать, сделать постоянное окно, сначала невидимое, потом в нем просто у лейбла меняем картинку
+    private fun makeImageWindow(itemImage: ImageIcon) { //создает JDialog с большой картинкой экспоната
         println("image = $itemImage")
-        val imageWindow = JDialog() //.apply { defaultCloseOperation = DISPOSE_ON_CLOSE }
-//        imageWindow.extendedState = imageWindow.extendedState or MAXIMIZED_BOTH
-        imageWindow?.isVisible = true
-        val graphics = GraphicsEnvironment.getLocalGraphicsEnvironment()
-        val device = graphics.defaultScreenDevice
-        device.setFullScreenWindow(imageWindow) //for full screen
+        imageWindow.isVisible = true
+        println("imageWindow visible is ${imageWindow.isVisible}")
         var newimg = getScaledImage(itemImage, imageWindow!!.width, imageWindow!!.height)
+        imageWindow!!.remove(imageLabel)
         imageLabel.icon = ImageIcon(newimg)
         imageLabel.setHorizontalAlignment(JLabel.CENTER)
         imageLabel.setVerticalAlignment(JLabel.CENTER)
@@ -227,10 +227,6 @@ class SimpleEx(title: String) : JFrame() {
         imageLabel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(mouseEvent: MouseEvent?) {
                     imageWindow!!.isVisible = false
-//                    imageWindow!!.removeAll()
-//                imageWindow!!.dispose()
-//                imageWindow.dispatchEvent( WindowEvent(imageWindow, WindowEvent.WINDOW_CLOSING))
-
             }
         })
         val sizePlusBtn = JButton("+")
@@ -256,10 +252,20 @@ class SimpleEx(title: String) : JFrame() {
             val ratio = imageWidth.toFloat() / newWidth
             imageWidth = newWidth
             imageHeight = (itemImage.iconHeight / ratio).toInt()
+            if (imageHeight>newHeight) { //это чтобы по ширине был не шире поля вывода картинки (лейбла)
+                val ratio = imageHeight.toFloat() / newHeight
+                imageHeight = newHeight
+                imageWidth = (imageWidth / ratio).toInt()
+            }
         } else {
             val ratio = imageHeight.toFloat() / newHeight
             imageHeight = newHeight
             imageWidth = (itemImage.iconWidth / ratio).toInt()
+            if (imageWidth>newWidth) {
+                val ratio = imageWidth.toFloat() / newWidth
+                imageWidth = newWidth
+                imageHeight = (imageHeight / ratio).toInt()
+            }
         }
         if (newWidth<0 || newHeight <0) image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH)
         return image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH)
