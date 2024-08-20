@@ -237,19 +237,62 @@ fun main() = application {
 //    configureArduinoConnect()
     var windowMode = File("mode.txt").readText() //для переключения режима с заголовком / без  для деплоя и отладки
     println("windowMode = $windowMode")
-    var state: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
+    var stateMuseumWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
+    var choice = remember { mutableStateOf(0) }
+    var stateFirstWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
+
+    Window( //стартовое окно
+        onCloseRequest = ::exitApplication,
+        //эти 3 строки нужны для фуллскрина без оконных кнопок
+        undecorated = false, //сделать true, чтобы без рамок было
+        alwaysOnTop = false,
+        state = WindowState(WindowPlacement.Floating)
+//        state = WindowState(WindowPlacement.Fullscreen)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Button(
+                onClick = {
+                    choice.value = 1
+                    println("choice = $choice")
+                }
+            ){
+                Text("Настройки")
+            }
+            Button(
+                onClick = {
+                    choice.value = 2
+                }
+            ){
+                Text("Музей")
+            }
+        }
+    }
 
     listFilesUsingJavaIO("/")
-    Window(
+    var settingsWindowVisible = mutableStateOf(false)
+    if (choice.value == 1){  //для окна с настройками
+        println("Settings")
+        settingsWindowVisible.value = true
+        SettingsWindow(settingsWindowVisible, choice)
+    }
+
+
+    if (choice.value == 2)
+        Window(
         onCloseRequest = ::exitApplication,
         //эти 3 строки нужны для фуллскрина без оконных кнопок
         undecorated = windowMode.contains("0"), //если в файле mode.txt первое число 0, то без оконных кнопок, иначе они будут, для отладки
         alwaysOnTop = true,
-        state = state.value
+        state = stateMuseumWindow.value
 //        state = WindowState(WindowPlacement.Fullscreen)
-    ) {
-        App(state)
-    }
+        ) {
+            App(stateMuseumWindow)
+        }
 
 //    secondWindow(::exitApplication)
 }
