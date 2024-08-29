@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 
@@ -32,7 +33,12 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
         state = WindowState(WindowPlacement.Fullscreen)
 //        state = WindowState(WindowPlacement.Fullscreen)
     ) {
+//        val windowState = rememberWindowState(size = DpSize.Unspecified)
+//        println("window height = ${windowState.size.height}")
         Column(Modifier.fillMaxSize()){
+            println("window height = ${ window.height}")
+//            window.height
+
             Row(//верхний ряд с управляющими элементами
                 modifier = Modifier
                     .fillMaxWidth()
@@ -43,6 +49,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 
             ) {
                 ControlBar(stendsAddedNum, compAddedNum, stendList)
+                println("window height = $")
             }
             LazyRow ( //центральный ряд с содержимым
                 modifier = Modifier

@@ -30,10 +30,11 @@ fun StendBox(model: StendBoxModel){
             Text("stend")
             Box(
                 modifier = Modifier
-                    .size(500.dp)
-                    .fillMaxHeight()
+                  //  .size(500.dp)
+                    .height(100.dp)
+                    //.fillMaxHeight()
 //                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(5.dp))
                     //.background(Color.Red)
                     .border(BorderStroke(2.dp, Color.Red))
             )
