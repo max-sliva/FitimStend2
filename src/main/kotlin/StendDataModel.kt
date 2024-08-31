@@ -21,55 +21,61 @@ fun StendBox(model: StendBoxModel){
     if (model.type=="stend") {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth()
                // .background(Color(0xffff0000))
-            //    .border(BorderStroke(2.dp, Color(0xffff0000)))
+                .border(BorderStroke(2.dp, Color.Black))
         ) {
             Text("stend")
-            Box(
+            println("window size = $this.")
+            BoxWithConstraints(
                 modifier = Modifier
-                  //  .size(500.dp)
-                    .height(100.dp)
+                    .fillMaxSize()
+//                    .size()
+                    .height(600.dp)
+                    .width(400.dp)
                     //.fillMaxHeight()
 //                    .fillMaxWidth()
                     .clip(RoundedCornerShape(5.dp))
                     //.background(Color.Red)
                     .border(BorderStroke(2.dp, Color.Red))
-            )
-//            val hexagon = remember {
-//                RoundedPolygon(
-//                    6,
-//                    rounding = CornerRounding(0.2f)
-//                )
-//            }
-//            val clip = remember(hexagon) {
-//                RoundedPolygonShape(polygon = hexagon)
-//            }
-//            Box(
-//                modifier = Modifier
-//                    .clip(clip)
-//                    //.background(MaterialTheme.colorScheme.secondary)
-//                    .size(200.dp)
-//            ) {
-//                Text(
-//                    "Hello Compose",
-//                    //color = MaterialTheme.colorScheme.onSecondary,
-//                    modifier = Modifier.align(Alignment.Center)
-//                )
-//            }
+            ){
+                println("stend height = ${this.maxHeight}")
+
+
+            }
         }
     } else if (model.type=="comp") {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
-                .wrapContentHeight()
+                .fillMaxHeight()
+//                .wrapContentHeight()
                 .fillMaxWidth()
-                .background(Color(0xff00ff00))
-                .border(BorderStroke(2.dp, Color(0xff00ff00)))
+//                .background(Color(0xff00ff00))
+//                .border(BorderStroke(2.dp, Color.Yellow))
         ) {
             Text("comp")
+            BoxWithConstraints(
+                modifier = Modifier
+
+//                    .fillMaxSize()
+//                    .size()
+                    .height(300.dp)
+                    .width(200.dp)
+                    //.fillMaxHeight()
+//                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(5.dp))
+                    //.background(Color.Red)
+                    .border(BorderStroke(2.dp, Color.Green))
+            ){
+                println("comp height = ${this.maxHeight}")
+
+
+            }
         }
     }
 }

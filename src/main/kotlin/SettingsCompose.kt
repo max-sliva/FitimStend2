@@ -36,7 +36,8 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //        val windowState = rememberWindowState(size = DpSize.Unspecified)
 //        println("window height = ${windowState.size.height}")
         Column(Modifier.fillMaxSize()){
-            println("window height = ${ window.height}")
+            println("window height = ${ window.height} ")
+//            println("this height = ${ } ")
 //            window.height
 
             Row(//верхний ряд с управляющими элементами
@@ -45,6 +46,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                     .height(100.dp)
 //                        .padding(20.dp)
                     .background(Color(0xff1e63b2))
+//                    .background(Color.Black)
                     .padding(5.dp)
 
             ) {
