@@ -30,19 +30,20 @@ fun StendBox(model: StendBoxModel){
         ) {
             Text("stend")
             println("window size = $this.")
-            BoxWithConstraints(
+//            BoxWithConstraints(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
 //                    .size()
                     .height(600.dp)
-                    .width(400.dp)
+                    .width(800.dp)
                     //.fillMaxHeight()
 //                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(5.dp))
+                   // .clip(RoundedCornerShape(5.dp))
                     //.background(Color.Red)
                     .border(BorderStroke(2.dp, Color.Red))
             ){
-                println("stend height = ${this.maxHeight}")
+//                println("stend height = ${this.maxHeight}")
 
 
             }
@@ -64,7 +65,7 @@ fun StendBox(model: StendBoxModel){
 
 //                    .fillMaxSize()
 //                    .size()
-                    .height(300.dp)
+                    .height(600.dp)
                     .width(200.dp)
                     //.fillMaxHeight()
 //                    .fillMaxWidth()

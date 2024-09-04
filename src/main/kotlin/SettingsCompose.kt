@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
@@ -54,8 +55,10 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                 println("window height = $")
             }
             LazyRow ( //центральный ряд с содержимым
+                horizontalArrangement = Arrangement.spacedBy(5.dp,Alignment.CenterHorizontally),
                 modifier = Modifier
                     .fillMaxSize()
+//                    .ho
                     .border(BorderStroke(2.dp, Color(0xff1e63b2)))
 //                    .border(BorderStroke(2.dp, Color(0xff00ff00)))
                     .padding(30.dp)
