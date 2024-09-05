@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 
@@ -20,6 +20,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
     var stendsAddedNum = mutableStateOf(0)
     var compAddedNum = mutableStateOf(0)
     var stendList = remember {mutableStateListOf<StendBoxModel>()}
+    var bordersList = remember { mutableStateListOf<BorderStroke>() }
 //    stendList.add(StendBoxModel("stend", 3))
 //    stendList.add(StendBoxModel("comp", 0))
 //    stendList.add(StendBoxModel("stend", 3))
@@ -51,7 +52,8 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                     .padding(5.dp)
 
             ) {
-                ControlBar(stendsAddedNum, compAddedNum, stendList)
+                ControlBar(stendsAddedNum, compAddedNum, stendList, bordersList)
+                 //todo добавить панель для вставки полок на стенд, видимость в зависимости от выбранного стенда
                 println("window height = $")
             }
             LazyRow ( //центральный ряд с содержимым
@@ -64,7 +66,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model)
+                    StendBox(model = model, bordersList)
                 }
             }
         }
@@ -79,13 +81,15 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 private fun ControlBar(
     stendsAddedNum: MutableState<Int>,
     compAddedNum: MutableState<Int>,
-    stendList: MutableList<StendBoxModel>
+    stendList: MutableList<StendBoxModel>,
+    bordersList: SnapshotStateList<BorderStroke>
 ) {
     Button(
         onClick = {
             //btnRemoveIsEnabled.value = true
+            stendList.add(StendBoxModel("stend", 3, stendsAddedNum.value))
             stendsAddedNum.value++
-            stendList.add(StendBoxModel("stend", 3))
+            bordersList.add(BorderStroke(2.dp, Color.Black))
             println("stendList = $stendList")
         },
         modifier = Modifier
