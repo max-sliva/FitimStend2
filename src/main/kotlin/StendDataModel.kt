@@ -9,9 +9,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 
 data class StendBoxModel(
@@ -21,9 +23,12 @@ data class StendBoxModel(
 )
 //class StendViewModel : ViewModel() {
 //}
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
+    val windowSize = LocalWindowInfo.current.containerSize
+    println("window size = ${windowSize.width}")
     var borderForStend = bordersList[model.borderNumber]
     if (model.type=="stend") {
         Column(
@@ -43,8 +48,9 @@ fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>)
                 modifier = Modifier
                     .fillMaxSize()
 //                    .size()
-                    .height(600.dp) //todo вычислять размер стенда по ширине окна минус ширину компа
-                    .width(800.dp)
+                    .height(600.dp)
+//                    .width(800.dp)
+                    .width((windowSize.width/2-350).dp)
                     //.fillMaxHeight()
 //                    .fillMaxWidth()
                    // .clip(RoundedCornerShape(5.dp))

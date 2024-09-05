@@ -9,11 +9,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) {
    // var btnRemoveIsEnabled = mutableStateOf(false)
@@ -35,10 +38,14 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
         state = WindowState(WindowPlacement.Fullscreen)
 //        state = WindowState(WindowPlacement.Fullscreen)
     ) {
+//        val windowSize = LocalWindowInfo.current.containerSize
+
+//        val windowHeight = remember { mutableStateOf(window.height) }
 //        val windowState = rememberWindowState(size = DpSize.Unspecified)
 //        println("window height = ${windowState.size.height}")
         Column(Modifier.fillMaxSize()){
-            println("window height = ${ window.height} ")
+//            println("window height = $windowHeight ")
+//            println("window size = $windowSize")
 //            println("this height = ${ } ")
 //            window.height
 
@@ -82,7 +89,7 @@ private fun ControlBar(
     stendsAddedNum: MutableState<Int>,
     compAddedNum: MutableState<Int>,
     stendList: MutableList<StendBoxModel>,
-    bordersList: SnapshotStateList<BorderStroke>
+    bordersList: SnapshotStateList<BorderStroke>,
 ) {
     Button(
         onClick = {
@@ -90,7 +97,7 @@ private fun ControlBar(
             stendList.add(StendBoxModel("stend", 3, stendsAddedNum.value))
             stendsAddedNum.value++
             bordersList.add(BorderStroke(2.dp, Color.Black))
-            println("stendList = $stendList")
+//            println("stendList = $stendList")
         },
         modifier = Modifier
             .padding(5.dp)
