@@ -57,6 +57,7 @@ fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>)
                     //.background(Color.Red)
                     .border(BorderStroke(2.dp, Color.Red))
                     .clickable {
+                        //todo добавить панель для вставки полок на стенд, видимость в зависимости от выбранного стенда
                         println("stend clicked")
                         bordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                         for (i in bordersList.indices){

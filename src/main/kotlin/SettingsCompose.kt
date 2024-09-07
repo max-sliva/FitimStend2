@@ -15,6 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
+import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.core.FileKit
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -27,6 +33,14 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //    stendList.add(StendBoxModel("stend", 3))
 //    stendList.add(StendBoxModel("comp", 0))
 //    stendList.add(StendBoxModel("stend", 3))
+    var directoryName = mutableStateOf("")
+    val directoryPickerLauncher = rememberDirectoryPickerLauncher(
+        title = "Выберите папку с экспонатами",
+//                            initialDirectory = "/custom/initial/path"
+    ) { directory ->
+        println("directory = ${directory?.path}")
+        directoryName.value = directory?.path!!
+    }
     Window(
         onCloseRequest = {
             isVisible.value = false
@@ -44,15 +58,10 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //        val windowState = rememberWindowState(size = DpSize.Unspecified)
 //        println("window height = ${windowState.size.height}")
         Column(Modifier.fillMaxSize()){
-//            println("window height = $windowHeight ")
-//            println("window size = $windowSize")
-//            println("this height = ${ } ")
-//            window.height
-
             Row(//верхний ряд с управляющими элементами
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
+                    .height(50.dp)
 //                        .padding(20.dp)
                     .background(Color(0xff1e63b2))
 //                    .background(Color.Black)
@@ -60,8 +69,33 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 
             ) {
                 ControlBar(stendsAddedNum, compAddedNum, stendList, bordersList)
-                 //todo добавить панель для вставки полок на стенд, видимость в зависимости от выбранного стенда
-                println("window height = $")
+//                println("window height = $")
+            }
+            Row(// ряд с кнопкой загрузки экспонатов
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+//                        .padding(20.dp)
+                    .background(Color(0xff1e63b2))
+//                    .background(Color.Black)
+                    .padding(5.dp)
+
+            ) {
+                Button(
+                    onClick = {
+                        println("loading folder with items")
+//                        GlobalScope.launch {
+//                            val directory = FileKit.pickDirectory(
+//                                title = "Pick a directory",
+//                                initialDirectory = "/custom/initial/path"
+//                            )
+//                        }
+                        directoryPickerLauncher.launch()
+                    }
+                ){
+                    Text("Папка с экспонатами...")
+                }
+                Text(text = directoryName.value, color = Color.White)
             }
             LazyRow ( //центральный ряд с содержимым
                 horizontalArrangement = Arrangement.spacedBy(5.dp,Alignment.CenterHorizontally),
