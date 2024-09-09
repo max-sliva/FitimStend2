@@ -12,15 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
-import io.github.vinceglb.filekit.core.FileKit
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -57,6 +51,12 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //        val windowHeight = remember { mutableStateOf(window.height) }
 //        val windowState = rememberWindowState(size = DpSize.Unspecified)
 //        println("window height = ${windowState.size.height}")
+        val dialogState = remember { mutableStateOf(false) }
+        DialogWindow(onCloseRequest = { dialogState.value = false }, visible = dialogState.value,
+            content = {
+                Text("dialog content")
+            }
+        )
         Column(Modifier.fillMaxSize()){
             Row(//верхний ряд с управляющими элементами
                 modifier = Modifier
@@ -97,6 +97,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                 }
                 Text(text = directoryName.value, color = Color.White)
             }
+
             LazyRow ( //центральный ряд с содержимым
                 horizontalArrangement = Arrangement.spacedBy(5.dp,Alignment.CenterHorizontally),
                 modifier = Modifier
@@ -107,7 +108,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, bordersList)
+                    StendBox(model = model, bordersList, dialogState)
                 }
             }
         }

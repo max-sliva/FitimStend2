@@ -1,18 +1,16 @@
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 
@@ -23,9 +21,9 @@ data class StendBoxModel(
 )
 //class StendViewModel : ViewModel() {
 //}
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>){
+fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>, dialogState: MutableState<Boolean>){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
     val windowSize = LocalWindowInfo.current.containerSize
     println("window size = ${windowSize.width}")
@@ -46,19 +44,37 @@ fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>)
 //            BoxWithConstraints(
             Box(
                 modifier = Modifier
+                    .onClick( matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                        onClick = {
+                        //todo проверить на тачскрине работу правой кнопки
+                            println("right button click")
+                            dialogState.value = true
+                        }
+                    )
+//                    .combinedClickable(
+//                        onClick = {
+////                            println("stend left clicked")
+////                            bordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
+////                            for (i in bordersList.indices){
+////                                if (i!=model.borderNumber) bordersList[i] = BorderStroke(2.dp, Color.Black)
+////                            }
+//                        },
+//                        onDoubleClick = {
+//
+//                        },
+//                        onLongClick = {
+//                            println("right button click")
+//                            dialogState.value = true
+//                        }
+//                    )
                     .fillMaxSize()
-//                    .size()
                     .height(600.dp)
-//                    .width(800.dp)
                     .width((windowSize.width/2-350).dp)
-                    //.fillMaxHeight()
-//                    .fillMaxWidth()
                    // .clip(RoundedCornerShape(5.dp))
                     //.background(Color.Red)
                     .border(BorderStroke(2.dp, Color.Red))
-                    .clickable {
-                        //todo добавить панель для вставки полок на стенд, видимость в зависимости от выбранного стенда
-                        println("stend clicked")
+                    .clickable{
+                        println("stend left clicked")
                         bordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                         for (i in bordersList.indices){
                             if (i!=model.borderNumber) bordersList[i] = BorderStroke(2.dp, Color.Black)
