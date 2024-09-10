@@ -34,6 +34,8 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
     ) { directory ->
         println("directory = ${directory?.path}")
         directoryName.value = directory?.path!!
+        val itemsMap = getItemsMap(directoryName.value) //todo разобраться, почему не работает
+        println("itemsMap = $itemsMap")
     }
     Window(
         onCloseRequest = {
