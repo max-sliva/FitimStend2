@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
+//import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -28,15 +28,15 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //    stendList.add(StendBoxModel("comp", 0))
 //    stendList.add(StendBoxModel("stend", 3))
     var directoryName = mutableStateOf("")
-    val directoryPickerLauncher = rememberDirectoryPickerLauncher(
-        title = "Выберите папку с экспонатами",
-//                            initialDirectory = "/custom/initial/path"
-    ) { directory ->
-        println("directory = ${directory?.path}")
-        directoryName.value = directory?.path!!
-        val itemsMap = getItemsMap(directoryName.value) //todo разобраться, почему не работает
-        println("itemsMap = $itemsMap")
-    }
+//    val directoryPickerLauncher = rememberDirectoryPickerLauncher(
+//        title = "Выберите папку с экспонатами",
+////                            initialDirectory = "/custom/initial/path"
+//    ) { directory ->
+//        println("directory = ${directory?.path}")
+//        directoryName.value = directory?.path!!
+//        val itemsMap = getItemsMap(directoryName.value) //todo разобраться, почему не работает
+//        println("itemsMap = $itemsMap")
+//    }
     Window(
         onCloseRequest = {
             isVisible.value = false
@@ -92,7 +92,7 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //                                initialDirectory = "/custom/initial/path"
 //                            )
 //                        }
-                        directoryPickerLauncher.launch()
+//                        directoryPickerLauncher.launch()
                     }
                 ){
                     Text("Папка с экспонатами...")

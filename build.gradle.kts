@@ -2,7 +2,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("jvm")
-    id("org.jetbrains.compose")
+//    id("org.jetbrains.compose")
+    id("org.jetbrains.compose") version "1.6.0-dev1296"
 }
 
 group = "com.example"
@@ -28,8 +29,8 @@ dependencies {
     implementation("io.github.java-native:jssc:2.9.6")
     implementation("org.json:json:20231013")
     implementation("com.formdev:flatlaf:3.4.1") //look'n'feel
-    implementation("io.github.vinceglb:filekit-core:0.8.2")
-    implementation("io.github.vinceglb:filekit-compose:0.8.2")
+//    implementation("io.github.vinceglb:filekit-core:0.8.2")
+//    implementation("io.github.vinceglb:filekit-compose:0.8.2")
     //implementation("org.swinglabs.swingx:swingx-all:1.6.5-1")
 //    implementation("io.github.oleksandrbalan:textflow:1.1.2")
 //    implementation("dev.romainguy:combo-breaker:0.9.0")
