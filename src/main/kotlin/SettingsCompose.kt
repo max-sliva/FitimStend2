@@ -14,11 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import javax.swing.JFileChooser
+
 //import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
-fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) {
+fun SettingsWindow(
+    isVisible: MutableState<Boolean>,
+    choice: MutableState<Int>,
+    loadingWindowIsVisible: MutableState<Boolean>
+) {
    // var btnRemoveIsEnabled = mutableStateOf(false)
     var stendsAddedNum = mutableStateOf(0)
     var compAddedNum = mutableStateOf(0)
@@ -39,13 +48,14 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //    }
     Window(
         onCloseRequest = {
-            isVisible.value = false
+            //isVisible.value = false
             choice.value = 0
+            loadingWindowIsVisible.value = true
         },
         visible = isVisible.value,
         undecorated = false,
         alwaysOnTop = false,
-        state = WindowState(WindowPlacement.Fullscreen)
+        state = WindowState(WindowPlacement.Maximized)
 //        state = WindowState(WindowPlacement.Fullscreen)
     ) {
 //        val windowSize = LocalWindowInfo.current.containerSize
@@ -54,11 +64,48 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
 //        val windowState = rememberWindowState(size = DpSize.Unspecified)
 //        println("window height = ${windowState.size.height}")
         val dialogState = remember { mutableStateOf(false) }
-        DialogWindow(onCloseRequest = { dialogState.value = false }, visible = dialogState.value,
-            content = {
-                Text("dialog content")
-            }
-        )
+//        DialogWindow(onCloseRequest = { dialogState.value = false }, visible = dialogState.value,
+//            content = {
+//                Text("dialog content")
+//            }
+//        )
+
+        Window( //окно с экспонатами
+//            state = WindowState(WindowPlacement.Maximized),
+            resizable = true,
+            onCloseRequest = {dialogState.value = false },
+            visible = dialogState.value,
+//                    onCloseRequest: () -> Unit,
+//        state: WindowState = ...,
+//        visible: Boolean = ...,
+//        title: String = ...,
+//        icon: Painter? = ...,
+//        undecorated: Boolean = ...,
+//        transparent: Boolean = ...,
+//        resizable: Boolean = ...,
+//        enabled: Boolean = ...,
+//        focusable: Boolean = ...,
+        alwaysOnTop = true,
+//        onPreviewKeyEvent: (KeyEvent) -> Boolean = ...,
+//        onKeyEvent: (KeyEvent) -> Boolean = ...,
+//        content: @Composable() (FrameWindowScope.() -> Unit)
+        ) {
+            FlowRow(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.Start,
+                verticalArrangement = Arrangement.Top,
+                content = { // rows
+                    //example https://composables.com/foundation-layout/flowrow
+                    Text("dialog content")
+                    Text("dialog content")
+                    Text("dialog content")
+                    Text("dialog content")
+                    Text("dialog content")
+                    Text("dialog content")
+                }
+            )
+//                    Text("dialog content")
+        }
         Column(Modifier.fillMaxSize()){
             Row(//верхний ряд с управляющими элементами
                 modifier = Modifier
@@ -86,13 +133,36 @@ fun SettingsWindow(isVisible: MutableState<Boolean>, choice: MutableState<Int>) 
                 Button(
                     onClick = {
                         println("loading folder with items")
-//                        GlobalScope.launch {
-//                            val directory = FileKit.pickDirectory(
-//                                title = "Pick a directory",
-//                                initialDirectory = "/custom/initial/path"
-//                            )
-//                        }
-//                        directoryPickerLauncher.launch()
+                        val fileChooser = JFileChooser(System.getProperty("user.dir")).apply {
+                            fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                            dialogTitle = "Выберите папку с экспонатами..."
+                            approveButtonText = "Выбрать"
+                            approveButtonToolTipText = "Выбрать папку в качестве папки с экспонатами"
+                        }
+                        fileChooser.showOpenDialog(window /* OR null */)
+                        directoryName.value = fileChooser.selectedFile.path
+                        println("folder = ${directoryName.value}")
+                        val itemsList = listDirsUsingDirectoryStream(directoryName.value)
+                        val itemsDir = directoryName.value
+                        println("items list = $itemsList")
+                        var itemsMap2 = mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
+                        itemsList.forEach {
+                            val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
+                            val txtFile = filesList.find { it.contains(".txt") }
+                            val imgFile = filesList.find { it != txtFile }
+                            val txtFilePath = "$itemsDir/$it/$txtFile"
+                            val imgFilePath = "$itemsDir/$it/$imgFile"
+                            val file = File(txtFilePath)
+                            val ioStream = BufferedReader(FileReader(file))
+                            val firstStringInFile = ioStream.readLine()
+                            val s = if (firstStringInFile=="") ioStream.readLine() else firstStringInFile //если первая строка пустая
+                            itemsMap2[s] = setOf(firstStringInFile, imgFilePath)
+                        }
+                        println("Список экспонатов:")
+                        itemsMap2.forEach {
+                            println("${it.key} : ${it.value}")
+                        }
+                        //todo сделать itemsMap2 в виде remember, чтобы он попал на окно с экспонатами
                     }
                 ){
                     Text("Папка с экспонатами...")

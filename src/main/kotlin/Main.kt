@@ -240,12 +240,14 @@ fun main() = application {
     var stateMuseumWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
     var choice = remember { mutableStateOf(0) }
     var stateFirstWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
+    var loadingWindowIsVisible = remember{ mutableStateOf(true)}
 
     Window( //стартовое окно
         onCloseRequest = ::exitApplication,
         //эти 3 строки нужны для фуллскрина без оконных кнопок
         undecorated = false, //сделать true, чтобы без рамок было
         alwaysOnTop = false,
+        visible = loadingWindowIsVisible.value,
         state = WindowState(WindowPlacement.Floating)
 //        state = WindowState(WindowPlacement.Fullscreen)
     ) {
@@ -272,17 +274,17 @@ fun main() = application {
             }
         }
     }
-
-    listFilesUsingJavaIO("/")
+//    listFilesUsingJavaIO("/")
     var settingsWindowVisible = mutableStateOf(false)
+
     if (choice.value == 1){  //для окна с настройками
         println("Settings")
         settingsWindowVisible.value = true
-        SettingsWindow(settingsWindowVisible, choice)
+        loadingWindowIsVisible.value = false
+        SettingsWindow(settingsWindowVisible, choice, loadingWindowIsVisible)
     }
 
-
-    if (choice.value == 2)
+    if (choice.value == 2) //для основного окна с музеем
         Window(
         onCloseRequest = ::exitApplication,
         //эти 3 строки нужны для фуллскрина без оконных кнопок
