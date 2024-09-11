@@ -1,6 +1,4 @@
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -12,6 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import java.io.BufferedReader
@@ -33,19 +35,9 @@ fun SettingsWindow(
     var compAddedNum = mutableStateOf(0)
     var stendList = remember {mutableStateListOf<StendBoxModel>()}
     var bordersList = remember { mutableStateListOf<BorderStroke>() }
-//    stendList.add(StendBoxModel("stend", 3))
-//    stendList.add(StendBoxModel("comp", 0))
-//    stendList.add(StendBoxModel("stend", 3))
     var directoryName = mutableStateOf("")
-//    val directoryPickerLauncher = rememberDirectoryPickerLauncher(
-//        title = "Выберите папку с экспонатами",
-////                            initialDirectory = "/custom/initial/path"
-//    ) { directory ->
-//        println("directory = ${directory?.path}")
-//        directoryName.value = directory?.path!!
-//        val itemsMap = getItemsMap(directoryName.value) //todo разобраться, почему не работает
-//        println("itemsMap = $itemsMap")
-//    }
+    var itemsMap2 = remember {mutableMapOf<String, Set<String>>() }//мап для хранения названия экспоната и набора из его описания и картинки
+
     Window(
         onCloseRequest = {
             //isVisible.value = false
@@ -90,18 +82,30 @@ fun SettingsWindow(
 //        onKeyEvent: (KeyEvent) -> Boolean = ...,
 //        content: @Composable() (FrameWindowScope.() -> Unit)
         ) {
+            val stateVertical = rememberScrollState(0)
             FlowRow(
-                modifier = Modifier,
+                modifier = Modifier
+                    .verticalScroll(stateVertical),
+//                    .weight(5f),,
                 horizontalArrangement = Arrangement.Start,
                 verticalArrangement = Arrangement.Top,
                 content = { // rows
                     //example https://composables.com/foundation-layout/flowrow
-                    Text("dialog content")
-                    Text("dialog content")
-                    Text("dialog content")
-                    Text("dialog content")
-                    Text("dialog content")
-                    Text("dialog content")
+                    itemsMap2.forEach{
+                        Column(){
+                            Text(text = it.key)
+                            val itemImage = File(it.value.last())
+                            val itemBitmap: ImageBitmap = remember(itemImage) {
+                                loadImageBitmap(itemImage.inputStream())
+                            }
+
+                            Image( painter = BitmapPainter(image = itemBitmap),
+//            painter = painterResource(nvsuLogoWhite), //указываем источник изображения
+                                contentDescription = "", //можно вставить описание изображения
+                                contentScale = ContentScale.Fit, //параметры масштабирования изображения
+                            )
+                        }
+                    }
                 }
             )
 //                    Text("dialog content")
@@ -145,7 +149,7 @@ fun SettingsWindow(
                         val itemsList = listDirsUsingDirectoryStream(directoryName.value)
                         val itemsDir = directoryName.value
                         println("items list = $itemsList")
-                        var itemsMap2 = mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
+//                        var itemsMap2 = mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
                         itemsList.forEach {
                             val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
                             val txtFile = filesList.find { it.contains(".txt") }
