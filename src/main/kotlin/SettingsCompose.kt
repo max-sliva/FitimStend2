@@ -82,32 +82,7 @@ fun SettingsWindow(
 //        onKeyEvent: (KeyEvent) -> Boolean = ...,
 //        content: @Composable() (FrameWindowScope.() -> Unit)
         ) {
-            val stateVertical = rememberScrollState(0)
-            FlowRow(
-                modifier = Modifier
-                    .verticalScroll(stateVertical),
-//                    .weight(5f),,
-                horizontalArrangement = Arrangement.Start,
-                verticalArrangement = Arrangement.Top,
-                content = { // rows
-                    //example https://composables.com/foundation-layout/flowrow
-                    itemsMap2.forEach{
-                        Column(){
-                            Text(text = it.key)
-                            val itemImage = File(it.value.last())
-                            val itemBitmap: ImageBitmap = remember(itemImage) {
-                                loadImageBitmap(itemImage.inputStream())
-                            }
-
-                            Image( painter = BitmapPainter(image = itemBitmap),
-//            painter = painterResource(nvsuLogoWhite), //указываем источник изображения
-                                contentDescription = "", //можно вставить описание изображения
-                                contentScale = ContentScale.Fit, //параметры масштабирования изображения
-                            )
-                        }
-                    }
-                }
-            )
+            ShowFlowRow(itemsMap2)
 //                    Text("dialog content")
         }
         Column(Modifier.fillMaxSize()){
@@ -193,6 +168,48 @@ fun SettingsWindow(
 //    DialogWindow(visible = isVisible.value, onCloseRequest = { isVisible.value = false }) {
 //        Text("dialog content")
 //    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>) {
+    val stateVertical = rememberScrollState(0)
+    FlowRow(
+        modifier = Modifier
+            .verticalScroll(stateVertical),
+//                    .weight(5f),,
+//        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+//        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        content = { // rows
+            //example https://composables.com/foundation-layout/flowrow
+            itemsMap2.forEach {
+                Column( //TODO добавить обработчик клика и менять рамку у выбранного объекта, а его данные записывать в стенд, а отсюда удалять
+                    horizontalAlignment = Alignment.CenterHorizontally,
+
+                    modifier = Modifier
+                        .border(BorderStroke(2.dp, Color(0xff1e63b2)))
+                        .height(200.dp)
+
+                ) {
+                    Text(text = it.key, )
+                    val itemImage = File(it.value.last())
+                    val itemBitmap: ImageBitmap = remember(itemImage) {
+                        loadImageBitmap(itemImage.inputStream())
+                    }
+
+                    Image(
+                        painter = BitmapPainter(image = itemBitmap),
+//            painter = painterResource(nvsuLogoWhite), //указываем источник изображения
+                        contentDescription = "", //можно вставить описание изображения
+                        contentScale = ContentScale.Fit, //параметры масштабирования изображения
+//                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+                    )
+                }
+            }
+        }
+    )
 }
 
 @Composable
