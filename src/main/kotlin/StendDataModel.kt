@@ -23,11 +23,11 @@ data class StendBoxModel(
 //}
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>, dialogState: MutableState<Boolean>){
+fun StendBox(model: StendBoxModel, stendBordersList: SnapshotStateList<BorderStroke>, dialogState: MutableState<Boolean>){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
     val windowSize = LocalWindowInfo.current.containerSize
     println("window size = ${windowSize.width}")
-    var borderForStend = bordersList[model.borderNumber]
+    var borderForStend = stendBordersList[model.borderNumber]
     if (model.type=="stend") {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -75,9 +75,9 @@ fun StendBox(model: StendBoxModel, bordersList: SnapshotStateList<BorderStroke>,
                     .border(BorderStroke(2.dp, Color.Red))
                     .clickable{
                         println("stend left clicked")
-                        bordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
-                        for (i in bordersList.indices){
-                            if (i!=model.borderNumber) bordersList[i] = BorderStroke(2.dp, Color.Black)
+                        stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
+                        for (i in stendBordersList.indices){
+                            if (i!=model.borderNumber) stendBordersList[i] = BorderStroke(2.dp, Color.Black)
                         }
                     }
 //                    clickable {

@@ -34,7 +34,7 @@ fun SettingsWindow(
     var stendsAddedNum = mutableStateOf(0)
     var compAddedNum = mutableStateOf(0)
     var stendList = remember {mutableStateListOf<StendBoxModel>()}
-    var bordersList = remember { mutableStateListOf<BorderStroke>() }
+    var stendBordersList = remember { mutableStateListOf<BorderStroke>() }
     var directoryName = mutableStateOf("")
     var itemsMap2 = remember {mutableMapOf<String, Set<String>>() }//мап для хранения названия экспоната и набора из его описания и картинки
 
@@ -96,7 +96,7 @@ fun SettingsWindow(
                     .padding(5.dp)
 
             ) {
-                ControlBar(stendsAddedNum, compAddedNum, stendList, bordersList)
+                ControlBar(stendsAddedNum, compAddedNum, stendList, stendBordersList)
 //                println("window height = $")
             }
             Row(// ряд с кнопкой загрузки экспонатов
@@ -159,7 +159,7 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, bordersList, dialogState)
+                    StendBox(model = model, stendBordersList, dialogState)
                 }
             }
         }
@@ -174,6 +174,7 @@ fun SettingsWindow(
 @Composable
 private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>) {
     val stateVertical = rememberScrollState(0)
+    var itemsBordersList = remember { mutableStateListOf<BorderStroke>() }
     FlowRow(
         modifier = Modifier
             .verticalScroll(stateVertical),
@@ -187,11 +188,16 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>) {
             itemsMap2.forEach {
                 Column( //TODO добавить обработчик клика и менять рамку у выбранного объекта, а его данные записывать в стенд, а отсюда удалять
                     horizontalAlignment = Alignment.CenterHorizontally,
-
                     modifier = Modifier
                         .border(BorderStroke(2.dp, Color(0xff1e63b2)))
                         .height(200.dp)
-
+                        .clickable{
+                            println("items box left clicked")
+//                            bordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
+//                            for (i in bordersList.indices){
+//                                if (i!=model.borderNumber) bordersList[i] = BorderStroke(2.dp, Color.Black)
+//                            }
+                        }
                 ) {
                     Text(text = it.key, )
                     val itemImage = File(it.value.last())
