@@ -35,6 +35,7 @@ fun SettingsWindow(
     var compAddedNum = mutableStateOf(0)
     var stendList = remember {mutableStateListOf<StendBoxModel>()}
     var stendBordersList = remember { mutableStateListOf<BorderStroke>() }
+    var itemsBordersMap = remember { mutableStateMapOf<String, BorderStroke>() }
     var directoryName = mutableStateOf("")
     var itemsMap2 = remember {mutableMapOf<String, Set<String>>() }//мап для хранения названия экспоната и набора из его описания и картинки
 
@@ -82,7 +83,7 @@ fun SettingsWindow(
 //        onKeyEvent: (KeyEvent) -> Boolean = ...,
 //        content: @Composable() (FrameWindowScope.() -> Unit)
         ) {
-            ShowFlowRow(itemsMap2)
+            ShowFlowRow(itemsMap2, itemsBordersMap)
 //                    Text("dialog content")
         }
         Column(Modifier.fillMaxSize()){
@@ -136,6 +137,8 @@ fun SettingsWindow(
                             val firstStringInFile = ioStream.readLine()
                             val s = if (firstStringInFile=="") ioStream.readLine() else firstStringInFile //если первая строка пустая
                             itemsMap2[s] = setOf(firstStringInFile, imgFilePath)
+                            itemsBordersMap[s] = BorderStroke(4.dp, Color(0xff1e63b2))
+
                         }
                         println("Список экспонатов:")
                         itemsMap2.forEach {
@@ -172,7 +175,7 @@ fun SettingsWindow(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>) {
+private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBordersMap: MutableMap<String, BorderStroke>) {
     val stateVertical = rememberScrollState(0)
     var itemsBordersList = remember { mutableStateListOf<BorderStroke>() }
     FlowRow(
@@ -186,17 +189,17 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>) {
         content = { // rows
             //example https://composables.com/foundation-layout/flowrow
             itemsMap2.forEach {
-                Column( //TODO добавить обработчик клика и менять рамку у выбранного объекта, а его данные записывать в стенд, а отсюда удалять
+                Column( //TODO передавать данные экспоната в стенд, а здесь делать неактивным
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .border(BorderStroke(2.dp, Color(0xff1e63b2)))
+                        .border(itemsBordersMap[it.key]!!)
                         .height(200.dp)
                         .clickable{
                             println("items box left clicked")
-//                            bordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
-//                            for (i in bordersList.indices){
-//                                if (i!=model.borderNumber) bordersList[i] = BorderStroke(2.dp, Color.Black)
-//                            }
+                            itemsBordersMap[it.key] = BorderStroke(4.dp, Color.Green)
+                            itemsBordersMap.forEach{it2->
+                                if (it2.key!=it.key) itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
+                            }
                         }
                 ) {
                     Text(text = it.key, )
@@ -207,7 +210,6 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>) {
 
                     Image(
                         painter = BitmapPainter(image = itemBitmap),
-//            painter = painterResource(nvsuLogoWhite), //указываем источник изображения
                         contentDescription = "", //можно вставить описание изображения
                         contentScale = ContentScale.Fit, //параметры масштабирования изображения
 //                        contentScale = ContentScale.Inside, //параметры масштабирования изображения

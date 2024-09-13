@@ -36,7 +36,7 @@ dependencies {
 //    implementation("dev.romainguy:combo-breaker:0.9.0")
 }
 //to make exe run in terminal:
-//    ./gradlew createDistributable
+//    ./gradlew createDistributable и скопировать папку items и файлы из папки ForExe
 // ./gradlew runDistributable
 compose.desktop {
     application {
