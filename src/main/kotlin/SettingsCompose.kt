@@ -62,7 +62,7 @@ fun SettingsWindow(
 //                Text("dialog content")
 //            }
 //        )
-
+        val stateVertical = rememberScrollState(0)
         Window( //окно с экспонатами
 //            state = WindowState(WindowPlacement.Maximized),
             resizable = true,
@@ -84,6 +84,11 @@ fun SettingsWindow(
 //        content: @Composable() (FrameWindowScope.() -> Unit)
         ) {
             ShowFlowRow(itemsMap2, itemsBordersMap)
+//            VerticalScrollbar(
+//                modifier = Modifier.align(Alignment.CenterEnd)
+//                    .fillMaxHeight(),
+//                adapter = rememberScrollbarAdapter(stateVertical)
+//            )
 //                    Text("dialog content")
         }
         Column(Modifier.fillMaxSize()){
@@ -216,6 +221,13 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBorders
                     )
                 }
             }
+//            VerticalScrollbar(
+//                modifier = Modifier
+//                    .fillMaxHeight()
+//                   // .padding(start = 20.dp)
+//                   ,
+//                adapter = rememberScrollbarAdapter(stateVertical)
+//            )
         }
     )
 }
