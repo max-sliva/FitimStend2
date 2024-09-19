@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -38,7 +39,10 @@ fun SettingsWindow(
     var itemsBordersMap = remember { mutableStateMapOf<String, BorderStroke>() }
     var directoryName = mutableStateOf("")
     var itemsMap2 = remember {mutableMapOf<String, Set<String>>() }//мап для хранения названия экспоната и набора из его описания и картинки
-
+    val barForStendVisibility = remember { mutableStateOf(false) }
+    val rowValue = remember { //объект для работы с текстом, для TextField
+        mutableStateOf("") //его начальное значение
+    }
     Window(
         onCloseRequest = {
             //isVisible.value = false
@@ -103,6 +107,7 @@ fun SettingsWindow(
 
             ) {
                 ControlBar(stendsAddedNum, compAddedNum, stendList, stendBordersList)
+                BarForStend(barForStendVisibility,rowValue)
 //                println("window height = $")
             }
             Row(// ряд с кнопкой загрузки экспонатов
@@ -167,7 +172,7 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, stendBordersList, dialogState)
+                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue)
                 }
             }
         }
@@ -230,6 +235,19 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBorders
 //            )
         }
     )
+}
+
+@Composable //панель для установки кол-ва рядов на стенде
+private fun BarForStend(barForStendVisibility: MutableState<Boolean>, rowValue: MutableState<String>) {
+    if (barForStendVisibility.value) {
+        Text(text = "Ряды: ", color = Color.White,)
+        TextField(
+            value = rowValue.value,
+            onValueChange = { newValue ->
+                rowValue.value = newValue
+            },
+        )
+    }
 }
 
 @Composable
