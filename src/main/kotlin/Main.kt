@@ -236,7 +236,7 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 fun main() = application {
 //    configureArduinoConnect()
     var windowMode = File("mode.txt").readText() //для переключения режима с заголовком / без  для деплоя и отладки
-    println("windowMode = $windowMode")
+    println("windowMode  = $windowMode")
     var stateMuseumWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
     var choice = remember { mutableStateOf(0) }
     var stateFirstWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}

@@ -69,7 +69,10 @@ fun StendBox(
                          //  .fillMaxSize()
                         .height(200.dp)
                         .width((windowSize.width / 2 - 350).dp)
-
+                        .clickable{
+                            println("shelve clicked")
+//                            stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
+                        }
                 ) {
 
                 }

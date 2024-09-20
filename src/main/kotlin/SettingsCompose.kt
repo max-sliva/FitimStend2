@@ -268,7 +268,7 @@ private fun ControlBar(
         modifier = Modifier
             .padding(5.dp)
     ) {
-        Text("Добавить стенд")
+        Text("Добавить стенд ")
     }
     Button(
         onClick = {
