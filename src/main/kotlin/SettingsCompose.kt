@@ -103,7 +103,7 @@ fun SettingsWindow(
 //                        .padding(20.dp)
                     .background(Color(0xff1e63b2))
 //                    .background(Color.Black)
-                    .padding(5.dp)
+                  //  .padding(5.dp)
 
             ) {
                 ControlBar(stendsAddedNum, compAddedNum, stendList, stendBordersList)
@@ -117,7 +117,7 @@ fun SettingsWindow(
 //                        .padding(20.dp)
                     .background(Color(0xff1e63b2))
 //                    .background(Color.Black)
-                    .padding(5.dp)
+//                    .padding(5.dp)
 
             ) {
                 Button(
@@ -260,7 +260,7 @@ private fun ControlBar(
     Button(
         onClick = {
             //btnRemoveIsEnabled.value = true
-            stendList.add(StendBoxModel("stend", 3, stendsAddedNum.value))
+            stendList.add(StendBoxModel("stend", 4, stendsAddedNum.value))
             stendsAddedNum.value++
             bordersList.add(BorderStroke(2.dp, Color.Black))
 //            println("stendList = $stendList")
