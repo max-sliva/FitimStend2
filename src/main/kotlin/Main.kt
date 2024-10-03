@@ -92,12 +92,18 @@ private fun UpperBar(nvsuLogoWhite: String, facultyLogoWhite: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
+//
+
             .fillMaxWidth()
             .height(100.dp)
-//                        .padding(20.dp)
-            .background(Color(0xff1e63b2))
+//        .padding(20.dp)
+
+            .background(Color.DarkGray)
+//            .background(Color(0xff1e63b2))
+
     ) {
         val nvsuFile = File(nvsuLogoWhite)
+
         val nvsuBitmap: ImageBitmap = remember(nvsuFile) {
             loadImageBitmap(nvsuFile.inputStream())
         }
@@ -106,10 +112,12 @@ private fun UpperBar(nvsuLogoWhite: String, facultyLogoWhite: String) {
             loadImageBitmap(facultyFile.inputStream())
         }
         Image(
+
             painter = BitmapPainter(image = nvsuBitmap),
 //            painter = painterResource(nvsuLogoWhite), //указываем источник изображения
             contentDescription = "", //можно вставить описание изображения
             contentScale = ContentScale.Fit, //параметры масштабирования изображения
+            modifier = Modifier.padding(8.dp)
         )
         var text = File("captionText.txt").readText()
         Text(text, color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
@@ -119,6 +127,7 @@ private fun UpperBar(nvsuLogoWhite: String, facultyLogoWhite: String) {
 //            painter = painterResource(facultyLogoWhite), //указываем источник изображения
             contentDescription = "", //можно вставить описание изображения
             contentScale = ContentScale.Fit, //параметры масштабирования изображения
+            modifier = Modifier.padding(8.dp)
         )
     }
 }
@@ -388,7 +397,8 @@ private fun FontSizeButton(s: String, onClick: () -> Unit) {
             .heightIn(max = 30.dp),
         contentPadding = PaddingValues(all = 0.dp),
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(Color(0xff1e63b2))
+//        colors = ButtonDefaults.buttonColors(Color(0xff1e63b2))
+            colors = ButtonDefaults.buttonColors(Color.DarkGray)
     )
     {
         Text( s, color = Color.White)
