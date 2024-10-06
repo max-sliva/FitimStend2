@@ -1,4 +1,12 @@
 
+import androidx.compose.foundation.Image
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.loadImageBitmap
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -7,6 +15,21 @@ import java.util.stream.Collectors
 import java.util.stream.Stream
 import kotlin.collections.HashSet
 
+@Composable
+fun makeItem(it: Map.Entry<String, Set<String>>) {
+    Text(text = it.key)
+    val itemImage = File(it.value.last())
+    val itemBitmap: ImageBitmap = remember(itemImage) {
+        loadImageBitmap(itemImage.inputStream())
+    }
+
+    Image(
+        painter = BitmapPainter(image = itemBitmap),
+        contentDescription = "", //можно вставить описание изображения
+        contentScale = ContentScale.Fit, //параметры масштабирования изображения
+//                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+    )
+}
 
 fun getItems(){
 

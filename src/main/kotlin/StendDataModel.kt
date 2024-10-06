@@ -28,7 +28,8 @@ fun StendBox(
     stendBordersList: SnapshotStateList<BorderStroke>,
     dialogState: MutableState<Boolean>,
     barForStendVisibility: MutableState<Boolean>,
-    rowValue: MutableState<String>
+    rowValue: MutableState<String>,
+    itemsInStend: MutableState<ItemsInStend?> //todo проверять, есть ли там массив для стенда с нужным номером
 ){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
     val windowSize = LocalWindowInfo.current.containerSize

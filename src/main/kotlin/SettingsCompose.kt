@@ -11,15 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
+import java.io.*
 import javax.swing.JFileChooser
 
 //import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
@@ -29,9 +23,11 @@ import javax.swing.JFileChooser
 fun SettingsWindow(
     isVisible: MutableState<Boolean>,
     choice: MutableState<Int>,
-    loadingWindowIsVisible: MutableState<Boolean>
+    loadingWindowIsVisible: MutableState<Boolean>,
+    curPath: String
 ) {
-   // var btnRemoveIsEnabled = mutableStateOf(false)
+    var itemsInStend = mutableStateOf(getItemsInStend(curPath))
+    // var btnRemoveIsEnabled = mutableStateOf(false)
     var stendsAddedNum = mutableStateOf(0)
     var compAddedNum = mutableStateOf(0)
     var stendList = remember {mutableStateListOf<StendBoxModel>()}
@@ -172,7 +168,7 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue)
+                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, itemsInStend)
                 }
             }
         }
@@ -181,6 +177,26 @@ fun SettingsWindow(
 //    DialogWindow(visible = isVisible.value, onCloseRequest = { isVisible.value = false }) {
 //        Text("dialog content")
 //    }
+}
+
+private fun getItemsInStend(curPath: String): ItemsInStend? { //ф-ия для считывания текущего состояния стенда из файла
+    val myFile = File("$curPath/itemsInStend.dat")
+    val fin = FileInputStream(myFile)
+    var oin: ObjectInputStream? = null
+//        var myHash2 = HashMap<String, String>()
+    var itemsInStend: ItemsInStend? = null
+    try {
+        println("itemsInStend.dat size = ${fin.readAllBytes().size}")
+        oin = ObjectInputStream(fin)
+        itemsInStend = oin.readObject() as ItemsInStend
+    } catch (e: EOFException){
+        println("itemsInStend.dat is empty")
+    }
+
+    println("itemsInStend from file = $itemsInStend")
+    oin?.close()
+    fin.close()
+    return itemsInStend
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -205,25 +221,14 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBorders
                         .border(itemsBordersMap[it.key]!!)
                         .height(200.dp)
                         .clickable{
-                            println("items box left clicked")
+                            println("items box left clicked, it = ${it.key}")
                             itemsBordersMap[it.key] = BorderStroke(4.dp, Color.Green)
                             itemsBordersMap.forEach{it2->
                                 if (it2.key!=it.key) itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
                             }
                         }
                 ) {
-                    Text(text = it.key, )
-                    val itemImage = File(it.value.last())
-                    val itemBitmap: ImageBitmap = remember(itemImage) {
-                        loadImageBitmap(itemImage.inputStream())
-                    }
-
-                    Image(
-                        painter = BitmapPainter(image = itemBitmap),
-                        contentDescription = "", //можно вставить описание изображения
-                        contentScale = ContentScale.Fit, //параметры масштабирования изображения
-//                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
-                    )
+                    makeItem(it)
                 }
             }
 //            VerticalScrollbar(
@@ -236,6 +241,8 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBorders
         }
     )
 }
+
+
 
 @Composable //панель для установки кол-ва рядов на стенде
 private fun BarForStend(barForStendVisibility: MutableState<Boolean>, rowValue: MutableState<String>) {

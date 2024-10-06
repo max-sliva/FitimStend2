@@ -23,8 +23,8 @@ import java.io.*
 //import com.kevinnzou.sample.MainWebView
 
 @Composable
-fun App(state: MutableState<WindowState>) {
-    val curPath = System.getProperty("user.dir")
+fun App(state: MutableState<WindowState>, curPath: String) {
+//    val curPath = System.getProperty("user.dir")
     val backgroundImage = "items/background.jpg"
     println("user dir = $curPath")
     var filesSet = remember { mutableStateListOf("$curPath/welcome.txt", "$curPath/$backgroundImage") }
@@ -244,6 +244,7 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 
 fun main() = application {
 //    configureArduinoConnect()
+    val curPath = System.getProperty("user.dir")
     var windowMode = File("mode.txt").readText() //для переключения режима с заголовком / без  для деплоя и отладки
     println("windowMode  = $windowMode")
     var stateMuseumWindow: MutableState<WindowState> = remember { mutableStateOf(WindowState(WindowPlacement.Fullscreen))}
@@ -290,7 +291,7 @@ fun main() = application {
         println("Settings")
         settingsWindowVisible.value = true
         loadingWindowIsVisible.value = false
-        SettingsWindow(settingsWindowVisible, choice, loadingWindowIsVisible)
+        SettingsWindow(settingsWindowVisible, choice, loadingWindowIsVisible, curPath)
     }
 
     if (choice.value == 2) //для основного окна с музеем
@@ -302,7 +303,7 @@ fun main() = application {
         state = stateMuseumWindow.value
 //        state = WindowState(WindowPlacement.Fullscreen)
         ) {
-            App(stateMuseumWindow)
+            App(stateMuseumWindow, curPath)
         }
 
 //    secondWindow(::exitApplication)
