@@ -56,7 +56,7 @@ fun App(state: MutableState<WindowState>, curPath: String) {
 //    val fitimLogoWhite = "fitim_white.png"
     val facultyLogoWhite = "faculty_white.png"
     val nvsuLogoWhite = "NVSU_white.png"
-    var fontSize = remember { mutableStateOf(20.sp) }
+    var fontSize = remember { mutableStateOf(26.sp) }
 //    MaterialTheme() {
 //        Button(onClick = {
 //            text = "Hello, Desktop!"
@@ -337,6 +337,7 @@ fun DropdownDemo(
             Text( //заголовок комбобокса
                 if (selectedIndex < 0) "Выберите экспонат: ▼" //если еще ничего не выбрано
                 else items[selectedIndex] + " ▼", //если выбрано
+                fontSize = 20.sp,
                 modifier = Modifier.clickable(onClick = { //при нажатии на текст раскрываем комбобокс
                     expanded = true
                 })
