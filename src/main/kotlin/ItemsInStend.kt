@@ -1,3 +1,3 @@
-class ItemsInStend: ArrayList<HashMap<Number, Array<String>>>() {
+class ItemsInStend: ArrayList<HashMap<Number, Array<Pair<String, String>>>>() {
 
 }

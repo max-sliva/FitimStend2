@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 data class StendBoxModel(
     var type: String = "stend",
     var shelvesNum: Int = 4,
-    var borderNumber: Int = 0
+    var borderNumber: Int = 0 //номер стенда в списке
 )
 //class StendViewModel : ViewModel() {
 //}
@@ -29,7 +29,9 @@ fun StendBox(
     dialogState: MutableState<Boolean>,
     barForStendVisibility: MutableState<Boolean>,
     rowValue: MutableState<String>,
-    itemsInStend: MutableState<ItemsInStend?> //todo проверять, есть ли там массив для стенда с нужным номером
+    itemsInStend: MutableState<ItemsInStend?>, //todo проверять, есть ли там массив для стенда с нужным номером
+    selectedItem: MutableState<Pair<String, String>>,
+    //itemsMap2: MutableMap<String, Set<String>>
 ){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
     val windowSize = LocalWindowInfo.current.containerSize
@@ -72,10 +74,13 @@ fun StendBox(
                         .width((windowSize.width / 2 - 350).dp)
                         .clickable{
                             println("shelve clicked")
+                            println("selectedItem = $selectedItem")
+                            /*todo добавлять элемент с нужный ряд нужного стенда, можно в StendBoxModel добавить объект ItemsInStend, только в нем убрать ArrayList,
+                            оставить HashMap<Number, Array<Pair<String, String>>>*/
 //                            stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                         }
                 ) {
-
+                    //todo цикл по списку Pair нужного ряда нужного стенда
                 }
             }
         }

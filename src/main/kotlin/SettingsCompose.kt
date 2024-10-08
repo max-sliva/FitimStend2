@@ -39,6 +39,8 @@ fun SettingsWindow(
     val rowValue = remember { //объект для работы с текстом, для TextField
         mutableStateOf("") //его начальное значение
     }
+//    var selectedItem = remember {mutableMapOf<String, Set<String>>() }
+    var selectedItem =  mutableStateOf(Pair("", ""))
     Window(
         onCloseRequest = {
             //isVisible.value = false
@@ -83,7 +85,7 @@ fun SettingsWindow(
 //        onKeyEvent: (KeyEvent) -> Boolean = ...,
 //        content: @Composable() (FrameWindowScope.() -> Unit)
         ) {
-            ShowFlowRow(itemsMap2, itemsBordersMap)
+            ShowFlowRow(itemsMap2, itemsBordersMap, selectedItem)
 //            VerticalScrollbar(
 //                modifier = Modifier.align(Alignment.CenterEnd)
 //                    .fillMaxHeight(),
@@ -150,7 +152,6 @@ fun SettingsWindow(
                         itemsMap2.forEach {
                             println("${it.key} : ${it.value}")
                         }
-                        //todo сделать itemsMap2 в виде remember, чтобы он попал на окно с экспонатами
                     }
                 ){
                     Text("Папка с экспонатами...")
@@ -168,7 +169,7 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, itemsInStend)
+                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, itemsInStend, selectedItem)
                 }
             }
         }
@@ -201,7 +202,11 @@ private fun getItemsInStend(curPath: String): ItemsInStend? { //ф-ия для �
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBordersMap: MutableMap<String, BorderStroke>) {
+private fun ShowFlowRow(
+    itemsMap2: MutableMap<String, Set<String>>,
+    itemsBordersMap: MutableMap<String, BorderStroke>,
+    selectedItem: MutableState<Pair<String, String>>,
+    ) {
     val stateVertical = rememberScrollState(0)
     var itemsBordersList = remember { mutableStateListOf<BorderStroke>() }
     FlowRow(
@@ -222,6 +227,7 @@ private fun ShowFlowRow(itemsMap2: MutableMap<String, Set<String>>, itemsBorders
                         .height(200.dp)
                         .clickable{
                             println("items box left clicked, it = ${it.key}")
+                            selectedItem.value = Pair(it.key, it.value.last())
                             itemsBordersMap[it.key] = BorderStroke(4.dp, Color.Green)
                             itemsBordersMap.forEach{it2->
                                 if (it2.key!=it.key) itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
