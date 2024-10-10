@@ -305,7 +305,11 @@ fun main() = application {
         ) {
             App(stateMuseumWindow, curPath)
         }
-
+//    Runtime.getRuntime().exec("taskkill /F /IM explorer.exe") //для удаления проводника из запущенных программ
+//    ProcessBuilder("taskkill /F /IM explorer.exe")
+//        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+//        .start()
+//        .waitFor()
 //    secondWindow(::exitApplication)
 }
 

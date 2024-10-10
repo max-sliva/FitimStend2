@@ -330,4 +330,25 @@ private fun ControlBar(
     ) {
         Text("Убрать комп")
     }
+    var passValue = remember { mutableStateOf("")  }
+    TextField(
+        value = passValue.value,
+        onValueChange = { newValue ->
+            passValue.value = newValue
+        },
+        modifier = Modifier.background(Color.White)
+    )
+    Button(
+        onClick = {
+            if(passValue.value == "museum"){
+                Runtime.getRuntime().exec("explorer")
+//                ProcessBuilder("explorer")
+//                    .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+//                    .start()
+//                    .waitFor()
+            }
+        }
+    ){
+        Text("Run")
+    }
 }
