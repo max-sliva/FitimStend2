@@ -1,5 +1,6 @@
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -31,6 +32,22 @@ fun makeItem(it: Map.Entry<String, Set<String>>) {
     )
 }
 
+@Composable
+fun makeItem(it: Pair<String, String>) {
+        Text(text = it.first)
+
+        val itemImage = File(it.second)
+        val itemBitmap: ImageBitmap = remember(itemImage) {
+            loadImageBitmap(itemImage.inputStream())
+        }
+
+        Image(
+            painter = BitmapPainter(image = itemBitmap),
+            contentDescription = "", //можно вставить описание изображения
+            contentScale = ContentScale.Fit, //параметры масштабирования изображения
+//                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+        )
+}
 fun getItems(){
 
 }

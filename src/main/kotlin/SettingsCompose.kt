@@ -26,7 +26,7 @@ fun SettingsWindow(
     loadingWindowIsVisible: MutableState<Boolean>,
     curPath: String
 ) {
-    var itemsInStend = mutableStateOf(getItemsInStend(curPath))
+    var itemsInMuseum = mutableStateOf(getItemsInStend(curPath))
     // var btnRemoveIsEnabled = mutableStateOf(false)
     var stendsAddedNum = mutableStateOf(0)
     var compAddedNum = mutableStateOf(0)
@@ -169,7 +169,7 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, itemsInStend, selectedItem)
+                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, itemsInMuseum, selectedItem)
                 }
             }
         }
@@ -232,9 +232,16 @@ private fun ShowFlowRow(
                             itemsBordersMap.forEach{it2->
                                 if (it2.key!=it.key) itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
                             }
+                           // if (selectedItem.value.first == "")
                         }
                 ) {
                     makeItem(it)
+                    if (selectedItem.value.first == "") { //чтобы убрать рамку с выделением, если элемент вставлен в стенд
+                        itemsBordersMap.forEach{it2->
+                           itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
+                            //todo делать элемент неактивным, если его уже вставили в стенд
+                        }
+                    }
                 }
             }
 //            VerticalScrollbar(
@@ -273,7 +280,7 @@ private fun ControlBar(
     Button(
         onClick = {
             //btnRemoveIsEnabled.value = true
-            stendList.add(StendBoxModel("stend", 4, stendsAddedNum.value))
+            stendList.add(StendBoxModel("stend", 4, stendsAddedNum.value, HashMap<Number, ArrayList<Pair<String, String>>>()))
             stendsAddedNum.value++
             bordersList.add(BorderStroke(2.dp, Color.Black))
 //            println("stendList = $stendList")
@@ -305,7 +312,7 @@ private fun ControlBar(
     Button(
         onClick = {
             compAddedNum.value++
-            stendList.add(StendBoxModel("comp", 0))
+            stendList.add(StendBoxModel("comp", 0, itemsInStend = null))
         },
         modifier = Modifier
             .padding(5.dp)

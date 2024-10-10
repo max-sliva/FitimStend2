@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.dp
 data class StendBoxModel(
     var type: String = "stend",
     var shelvesNum: Int = 4,
-    var borderNumber: Int = 0 //номер стенда в списке
+    var borderNumber: Int = 0, //номер стенда в списке
+    var itemsInStend: HashMap<Number, ArrayList<Pair<String, String>>>?
 )
 //class StendViewModel : ViewModel() {
 //}
@@ -29,7 +30,7 @@ fun StendBox(
     dialogState: MutableState<Boolean>,
     barForStendVisibility: MutableState<Boolean>,
     rowValue: MutableState<String>,
-    itemsInStend: MutableState<ItemsInStend?>, //todo проверять, есть ли там массив для стенда с нужным номером
+    itemsInMuseum: MutableState<ItemsInStend?>, //todo проверять, есть ли там массив для стенда с нужным номером
     selectedItem: MutableState<Pair<String, String>>,
     //itemsMap2: MutableMap<String, Set<String>>
 ){
@@ -73,14 +74,38 @@ fun StendBox(
                         .height(200.dp)
                         .width((windowSize.width / 2 - 350).dp)
                         .clickable{
-                            println("shelve clicked")
+                            println("shelve $i clicked")
                             println("selectedItem = $selectedItem")
-                            /*todo добавлять элемент с нужный ряд нужного стенда, можно в StendBoxModel добавить объект ItemsInStend, только в нем убрать ArrayList,
-                            оставить HashMap<Number, Array<Pair<String, String>>>*/
+                            if (selectedItem.value.first!=""){
+                                println("item is selected")
+                                if (model.itemsInStend?.get(i)==null){
+                                    println("no items in shelve")
+                                    model.itemsInStend?.set(i, ArrayList<Pair<String, String>>())
+                                    val arr = model.itemsInStend?.get(i)
+                                    arr!!.add(selectedItem.value)
+                                    model.itemsInStend?.set(i, arr)
+                                    selectedItem.value = Pair<String, String>("", "")
+                                } else {
+                                    println("there are ${model.itemsInStend?.get(i)?.size}")
+                                    val arr = model.itemsInStend?.get(i)
+                                    arr!!.add(selectedItem.value)
+                                    model.itemsInStend?.set(i, arr)
+                                    selectedItem.value = Pair<String, String>("", "")
+                                }
+                            } else  println("item is not selected")
+
 //                            stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                         }
                 ) {
-                    //todo цикл по списку Pair нужного ряда нужного стенда
+                        model.itemsInStend?.get(i)?.forEach {
+                            Column(
+                                //todo сделать, чтобы размеры колонок были в зависимости от кол-ва элементов на полке
+                            )
+                            {
+                                makeItem(it)
+                            }
+                        }
+                    //todo продумать удаление эл-ов с полки
                 }
             }
         }
