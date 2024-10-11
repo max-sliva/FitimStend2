@@ -1,18 +1,26 @@
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
+import java.io.File
 
 data class StendBoxModel(
     var type: String = "stend",
@@ -30,8 +38,9 @@ fun StendBox(
     dialogState: MutableState<Boolean>,
     barForStendVisibility: MutableState<Boolean>,
     rowValue: MutableState<String>,
-    itemsInMuseum: MutableState<ItemsInStend?>, //todo проверять, есть ли там массив для стенда с нужным номером
+   //itemsInMuseum: MutableState<ItemsInStend?>, //todo проверять, есть ли там массив для стенда с нужным номером
     selectedItem: MutableState<Pair<String, String>>,
+    itemsAddedToStend: SnapshotStateList<String>,
     //itemsMap2: MutableMap<String, Set<String>>
 ){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
@@ -58,54 +67,96 @@ fun StendBox(
                 }
                 .onClick( matcher = PointerMatcher.mouse(PointerButton.Secondary),
                     onClick = {
-                        //todo проверить на тачскрине работу правой кнопки
                         println("right button click")
                         dialogState.value = true
                     }
                 )
 //                .border(if (model.clicked) BorderStroke(2.dp, Color.Black) else BorderStroke(15.dp, Color.Yellow))
         ) {
-            Text("stend")
+            var shelveItemsNum = 0 //кол-во экспонатов на стенде
+            model.itemsInStend?.forEach {
+                shelveItemsNum += it.value.size
+            }
+            Text("stend, items = $shelveItemsNum  ")
+            var rowWidth =  mutableStateOf( windowSize.width / 2 - 350)
             for (i in 0..< model.shelvesNum) {
                 Row(
                     modifier = Modifier
                         .border(BorderStroke(2.dp, Color.Blue))
                          //  .fillMaxSize()
                         .height(200.dp)
-                        .width((windowSize.width / 2 - 350).dp)
+                        .width(rowWidth.value.dp)
                         .clickable{
                             println("shelve $i clicked")
                             println("selectedItem = $selectedItem")
                             if (selectedItem.value.first!=""){
                                 println("item is selected")
+                                dialogState.value = false
                                 if (model.itemsInStend?.get(i)==null){
                                     println("no items in shelve")
                                     model.itemsInStend?.set(i, ArrayList<Pair<String, String>>())
                                     val arr = model.itemsInStend?.get(i)
                                     arr!!.add(selectedItem.value)
                                     model.itemsInStend?.set(i, arr)
+                                    itemsAddedToStend.add(selectedItem.value.first)
+                                    println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
                                     selectedItem.value = Pair<String, String>("", "")
                                 } else {
                                     println("there are ${model.itemsInStend?.get(i)?.size}")
                                     val arr = model.itemsInStend?.get(i)
                                     arr!!.add(selectedItem.value)
                                     model.itemsInStend?.set(i, arr)
+                                    itemsAddedToStend.add(selectedItem.value.first)
+                                    println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
                                     selectedItem.value = Pair<String, String>("", "")
                                 }
+                                dialogState.value = true
                             } else  println("item is not selected")
 
 //                            stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                         }
                 ) {
+                    var itemWidth = rowWidth.value / 2
+                    var arraySize = 2
+                    if (model.itemsInStend?.get(i) != null)
+                        arraySize = model.itemsInStend!![i]!!.size
+                    if (arraySize > 2) itemWidth = rowWidth.value / arraySize
                         model.itemsInStend?.get(i)?.forEach {
-                            Column(
-                                //todo сделать, чтобы размеры колонок были в зависимости от кол-ва элементов на полке
-                            )
-                            {
-                                makeItem(it)
+                            if (itemsAddedToStend.contains(it.first)) {
+                                Column(
+                                    modifier = Modifier
+                                        .width(itemWidth.dp)
+                                )
+                                {
+//                                    makeItem(it, itemsAddedToStend)
+                                    Text(text = it.first)
+                                    Button(
+                                        onClick = {
+                                            println("remove ${it.first}")
+                                            itemsAddedToStend.remove(it.first)
+                                            println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
+                                            model.itemsInStend?.get(i)!!.remove(it) //todo попробовать преобразовать в функцию обратного вызова
+                                        },
+                                        modifier = Modifier
+                                            .width(50.dp)
+                                    ) {
+                                        Text("x")
+                                    }
+
+                                    val itemImage = File(it.second)
+                                    val itemBitmap: ImageBitmap = remember(itemImage) {
+                                        loadImageBitmap(itemImage.inputStream())
+                                    }
+
+                                    Image(
+                                        painter = BitmapPainter(image = itemBitmap),
+                                        contentDescription = "", //можно вставить описание изображения
+                                        contentScale = ContentScale.Fit, //параметры масштабирования изображения
+//                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+                                    )
+                                }
                             }
                         }
-                    //todo продумать удаление эл-ов с полки
                 }
             }
         }

@@ -1,13 +1,18 @@
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.unit.dp
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -33,8 +38,20 @@ fun makeItem(it: Map.Entry<String, Set<String>>) {
 }
 
 @Composable
-fun makeItem(it: Pair<String, String>) {
+fun makeItem(it: Pair<String, String>, itemsAddedToStend: SnapshotStateList<String>,) {
         Text(text = it.first)
+        Button(
+            onClick = {
+                println("remove ${it.first}")
+                itemsAddedToStend.remove(it.first)
+                println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
+            },
+            modifier = Modifier
+                .width(50.dp)
+        ) {
+            Text("x")
+        }
+
 
         val itemImage = File(it.second)
         val itemBitmap: ImageBitmap = remember(itemImage) {
@@ -48,7 +65,8 @@ fun makeItem(it: Pair<String, String>) {
 //                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
         )
 }
-fun getItems(){
+
+fun getItems() {
 
 }
 
@@ -116,7 +134,8 @@ fun getItemsMap(folderNamePath: String): MutableMap<String, Set<String>> {
     println("dirsList = $dirsList")
     //var setOfItems =
 //    var itemsMap = mutableMapOf<String, String>()
-    val itemsMap2 = mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
+    val itemsMap2 =
+        mutableMapOf<String, Set<String>>() //мап для хранения названия экспоната и набора из его описания и картинки
     dirsList.forEach {
         val filesList = listFilesUsingDirectoryStream("$itemsDir/$it")
         val txtFile = filesList.find { it.contains(".txt") }
@@ -127,7 +146,7 @@ fun getItemsMap(folderNamePath: String): MutableMap<String, Set<String>> {
         val file = File(txtFilePath)
         val ioStream = BufferedReader(FileReader(file))
         val firstStringInFile = ioStream.readLine()
-        val s = if (firstStringInFile=="") ioStream.readLine() else firstStringInFile //если первая строка пустая
+        val s = if (firstStringInFile == "") ioStream.readLine() else firstStringInFile //если первая строка пустая
 //        println("for $it: $filesList caption = $s")
 //        itemsMap[s] = "$itemsDir/$it"
         itemsMap2[s] = setOf(txtFilePath, imgFilePath)

@@ -41,6 +41,9 @@ fun SettingsWindow(
     }
 //    var selectedItem = remember {mutableMapOf<String, Set<String>>() }
     var selectedItem =  mutableStateOf(Pair("", ""))
+    val dialogState = remember { mutableStateOf(false) }
+    var itemsAddedToStend = remember { mutableStateListOf<String>() }
+
     Window(
         onCloseRequest = {
             //isVisible.value = false
@@ -58,13 +61,14 @@ fun SettingsWindow(
 //        val windowHeight = remember { mutableStateOf(window.height) }
 //        val windowState = rememberWindowState(size = DpSize.Unspecified)
 //        println("window height = ${windowState.size.height}")
-        val dialogState = remember { mutableStateOf(false) }
+//        val dialogState = remember { mutableStateOf(false) }
 //        DialogWindow(onCloseRequest = { dialogState.value = false }, visible = dialogState.value,
 //            content = {
 //                Text("dialog content")
 //            }
 //        )
         val stateVertical = rememberScrollState(0)
+        var itemsInShowFlowRowNum = itemsMap2.size - itemsAddedToStend.size //хранит кол-во экспонатов во всплывающем окне
         Window( //окно с экспонатами
 //            state = WindowState(WindowPlacement.Maximized),
             resizable = true,
@@ -73,7 +77,7 @@ fun SettingsWindow(
 //                    onCloseRequest: () -> Unit,
 //        state: WindowState = ...,
 //        visible: Boolean = ...,
-//        title: String = ...,
+        title  = itemsInShowFlowRowNum.toString(),
 //        icon: Painter? = ...,
 //        undecorated: Boolean = ...,
 //        transparent: Boolean = ...,
@@ -85,7 +89,7 @@ fun SettingsWindow(
 //        onKeyEvent: (KeyEvent) -> Boolean = ...,
 //        content: @Composable() (FrameWindowScope.() -> Unit)
         ) {
-            ShowFlowRow(itemsMap2, itemsBordersMap, selectedItem)
+            ShowFlowRow(itemsMap2, itemsBordersMap, selectedItem, itemsAddedToStend)
 //            VerticalScrollbar(
 //                modifier = Modifier.align(Alignment.CenterEnd)
 //                    .fillMaxHeight(),
@@ -169,7 +173,7 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, itemsInMuseum, selectedItem)
+                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, /*itemsInMuseum,*/ selectedItem, itemsAddedToStend)
                 }
             }
         }
@@ -202,13 +206,14 @@ private fun getItemsInStend(curPath: String): ItemsInStend? { //ф-ия для �
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ShowFlowRow(
+private fun ShowFlowRow( //показывает всплывающее окно с экспонатами
     itemsMap2: MutableMap<String, Set<String>>,
     itemsBordersMap: MutableMap<String, BorderStroke>,
     selectedItem: MutableState<Pair<String, String>>,
-    ) {
+    itemsAddedToStend: SnapshotStateList<String>,
+) {
     val stateVertical = rememberScrollState(0)
-    var itemsBordersList = remember { mutableStateListOf<BorderStroke>() }
+//    var itemsBordersList = remember { mutableStateListOf<BorderStroke>() }
     FlowRow(
         modifier = Modifier
             .verticalScroll(stateVertical),
@@ -220,29 +225,31 @@ private fun ShowFlowRow(
         content = { // rows
             //example https://composables.com/foundation-layout/flowrow
             itemsMap2.forEach {
-                Column( //TODO передавать данные экспоната в стенд, а здесь делать неактивным
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .border(itemsBordersMap[it.key]!!)
-                        .height(200.dp)
-                        .clickable{
-                            println("items box left clicked, it = ${it.key}")
-                            selectedItem.value = Pair(it.key, it.value.last())
-                            itemsBordersMap[it.key] = BorderStroke(4.dp, Color.Green)
-                            itemsBordersMap.forEach{it2->
-                                if (it2.key!=it.key) itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
+                if (!itemsAddedToStend.contains(it.key)) //если экспоната нет еще на стенде
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+
+                        modifier = Modifier
+                            .border(itemsBordersMap[it.key]!!)
+                            .height(200.dp)
+                            .clickable{
+                                println("items box left clicked, it = ${it.key}")
+                                selectedItem.value = Pair(it.key, it.value.last())
+                                itemsBordersMap[it.key] = BorderStroke(4.dp, Color.Green)
+                                itemsBordersMap.forEach{it2->
+                                    if (it2.key!=it.key) itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
+                                }
+
+                               // if (selectedItem.value.first == "")
                             }
-                           // if (selectedItem.value.first == "")
-                        }
-                ) {
-                    makeItem(it)
-                    if (selectedItem.value.first == "") { //чтобы убрать рамку с выделением, если элемент вставлен в стенд
-                        itemsBordersMap.forEach{it2->
-                           itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
-                            //todo делать элемент неактивным, если его уже вставили в стенд
+                    ) {
+                        makeItem(it)
+                        if (selectedItem.value.first == "") { //чтобы убрать рамку с выделением, если элемент вставлен в стенд
+                            itemsBordersMap.forEach{it2->
+                               itemsBordersMap[it2.key] = BorderStroke(4.dp, Color(0xff1e63b2))
+                            }
                         }
                     }
-                }
             }
 //            VerticalScrollbar(
 //                modifier = Modifier
@@ -358,4 +365,5 @@ private fun ControlBar(
     ){
         Text("Run")
     }
+        //todo добавить сохранение текущей конфигурации в файл и загрузку из файла
 }
