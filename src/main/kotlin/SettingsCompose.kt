@@ -365,5 +365,19 @@ private fun ControlBar(
     ){
         Text("Run")
     }
-        //todo добавить сохранение текущей конфигурации в файл и загрузку из файла
+    Button(
+        onClick = {
+
+        }
+    ){
+        Text("Загрузить музей")
+    }
+    Button(
+        onClick = {
+            println("stendList = ${stendList.toList()}")
+            //todo добавить сохранение stendList в файл
+        }
+    ){
+        Text("Сохранить музей")
+    }
 }
