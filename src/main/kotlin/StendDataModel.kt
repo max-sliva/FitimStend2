@@ -21,13 +21,14 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
 import java.io.File
+import java.io.Serializable
 
 data class StendBoxModel(
     var type: String = "stend",
     var shelvesNum: Int = 4,
     var borderNumber: Int = 0, //номер стенда в списке
     var itemsInStend: HashMap<Number, ArrayList<Pair<String, String>>>?
-)
+): Serializable
 //class StendViewModel : ViewModel() {
 //}
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)

@@ -26,7 +26,7 @@ fun SettingsWindow(
     loadingWindowIsVisible: MutableState<Boolean>,
     curPath: String
 ) {
-    var itemsInMuseum = mutableStateOf(getItemsInStend(curPath))
+//    var itemsInMuseum = mutableStateOf(getItemsInStend(curPath))
     // var btnRemoveIsEnabled = mutableStateOf(false)
     var stendsAddedNum = mutableStateOf(0)
     var compAddedNum = mutableStateOf(0)
@@ -108,7 +108,7 @@ fun SettingsWindow(
                   //  .padding(5.dp)
 
             ) {
-                ControlBar(stendsAddedNum, compAddedNum, stendList, stendBordersList)
+                ControlBar(stendsAddedNum, compAddedNum, stendList, stendBordersList, itemsAddedToStend)
                 BarForStend(barForStendVisibility,rowValue)
 //                println("window height = $")
             }
@@ -174,6 +174,7 @@ fun SettingsWindow(
             ) {
                 items(stendList) { model ->
                     StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, /*itemsInMuseum,*/ selectedItem, itemsAddedToStend)
+                    println("stendbox items = ${model.itemsInStend}")
                 }
             }
         }
@@ -283,6 +284,7 @@ private fun ControlBar(
     compAddedNum: MutableState<Int>,
     stendList: MutableList<StendBoxModel>,
     bordersList: SnapshotStateList<BorderStroke>,
+    itemsAddedToStend: SnapshotStateList<String>,
 ) {
     Button(
         onClick = {
@@ -367,7 +369,35 @@ private fun ControlBar(
     }
     Button(
         onClick = {
+            //todo добавить диалоговое окно для загрузки из выбранного файла
+            val myFile = File("itemsInStend.dat")
+            val fin = FileInputStream(myFile)
+            val oin = ObjectInputStream(fin)
+//        var myHash2 = HashMap<String, String>()
+            stendList.clear()
+            val stendList2 = oin.readObject() as MutableList<StendBoxModel>
+//            var stendsNum = 0
+            bordersList.clear()
+            stendList2.forEach {//цикл по экспонатам, чтобы добавить границу в массив и сами экспонаты в список добавленных
+                if (it.type=="stend") {
+                    bordersList.add(BorderStroke(2.dp, Color.Black))
+                    it.itemsInStend!!.forEach { (t, u) ->
+                        u.forEach {
+                            itemsAddedToStend.add(it.first)
+                        }
+                    }
+                }
+            }
+//            println("stends in file = $stendsNum")
+//            for (i in 0..< stendsNum){
+//                bordersList.add(BorderStroke(2.dp, Color.Black))
+//            }
+            //bordersList.add(BorderStroke(2.dp, Color.Black))
+            stendList.addAll(stendList2)
 
+            println("stendList from file = ${stendList.toList()}")
+            oin.close()
+            fin.close()
         }
     ){
         Text("Загрузить музей")
@@ -375,7 +405,14 @@ private fun ControlBar(
     Button(
         onClick = {
             println("stendList = ${stendList.toList()}")
-            //todo добавить сохранение stendList в файл
+            //todo добавить диалоговое окно для сохранения stendList в файл
+            val myFile = File("itemsInStend.dat")
+            val f = FileOutputStream(myFile)
+            val o = ObjectOutputStream(f)
+            o.writeObject(stendList.toList())
+//            o.writeObject(stendList)
+            o.close()
+            f.close()
         }
     ){
         Text("Сохранить музей")

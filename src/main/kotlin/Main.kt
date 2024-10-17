@@ -296,11 +296,12 @@ fun main() = application {
 
     if (choice.value == 2) //для основного окна с музеем
         Window(
-        onCloseRequest = ::exitApplication,
-        //эти 3 строки нужны для фуллскрина без оконных кнопок
-        undecorated = windowMode.contains("0"), //если в файле mode.txt первое число 0, то без оконных кнопок, иначе они будут, для отладки
-        alwaysOnTop = true,
-        state = stateMuseumWindow.value
+            onCloseRequest = ::exitApplication,
+            //эти 3 строки нужны для фуллскрина без оконных кнопок
+            undecorated = windowMode.contains("0"), //если в файле mode.txt первое число 0, то без оконных кнопок, иначе они будут, для отладки
+            alwaysOnTop = true,
+            resizable = false,
+            state = stateMuseumWindow.value
 //        state = WindowState(WindowPlacement.Fullscreen)
         ) {
             App(stateMuseumWindow, curPath)
@@ -357,12 +358,18 @@ fun DropdownDemo(
                 FontSizeButton("+"){
                     var size = fontSize.value.value
                     size++
-                    fontSize.value = size.sp
+                    if (size<=55){
+                        println("font size = $size")
+                        fontSize.value = size.sp
+                    }
                 }
                 FontSizeButton("-"){
                     var size = fontSize.value.value
                     size--
-                    fontSize.value = size.sp
+                    if (size>=10){
+                        println("font size = $size")
+                        fontSize.value = size.sp
+                    }
                 }
             }
         }
