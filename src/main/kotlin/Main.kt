@@ -354,6 +354,14 @@ fun DropdownDemo(
                 verticalAlignment = Alignment.CenterVertically,
 //                .padding(all = 50.dp)
             ){
+                Button(
+                    onClick = {
+                        //todo сделать загрузку окна с текущей картой расположения экспонатов из itemsInStend.dat
+                    }
+
+                ){
+                    Text("Карта музея...")
+                }
                 Text("Шрифт: ")
                 FontSizeButton("+"){
                     var size = fontSize.value.value
@@ -414,7 +422,7 @@ private fun FontSizeButton(s: String, onClick: () -> Unit) {
             colors = ButtonDefaults.buttonColors(Color.DarkGray)
     )
     {
-        Text( s, color = Color.White)
+        Text( s, color = Color.White, fontSize = 25.sp)
     }
 }
 
