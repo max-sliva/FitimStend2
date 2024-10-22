@@ -1,5 +1,7 @@
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -49,9 +51,12 @@ fun App(state: MutableState<WindowState>, curPath: String) {
 //        itemsMap[s] = "$itemsDir/$it"
         itemsMap2[s] = setOf(txtFilePath, imgFilePath)
     }
-    itemsMap2.forEach {
-        println("${it.key} : ${it.value}")
-    }
+//    itemsMap2.forEach {
+//        println("${it.key} : ${it.value}")
+//    }
+    var stendBordersList = remember { mutableStateListOf<BorderStroke>() }
+    var itemsAddedToStend = remember { mutableStateListOf<String>() }
+    var stendList = loadStendModel(stendBordersList, itemsAddedToStend)
     val fitimLogo = "fitim.png"
 //    val fitimLogoWhite = "fitim_white.png"
     val facultyLogoWhite = "faculty_white.png"
@@ -68,7 +73,7 @@ fun App(state: MutableState<WindowState>, curPath: String) {
 //                TopAppBar(title = {
         Column(Modifier.fillMaxSize()) {
             UpperBar(nvsuLogoWhite, facultyLogoWhite)
-            DropdownDemo(itemsMap2.keys.toList(), fontSize) {
+            DropdownDemo(itemsMap2.keys.toList(), fontSize, state, stendList, stendBordersList, itemsAddedToStend) {
                 println("selected = $it")
                 val tempList = itemsMap2[it]?.toList()
                 filesSet.clear()
@@ -84,6 +89,38 @@ fun App(state: MutableState<WindowState>, curPath: String) {
 //            content = { MyContent() }
 //        )
 //    }
+}
+
+fun loadStendModel(bordersList: SnapshotStateList<BorderStroke>, itemsAddedToStend: SnapshotStateList<String>,): MutableList<StendBoxModel> {
+    val myFile = File("itemsInStend.dat")
+    val fin = FileInputStream(myFile)
+    val oin = ObjectInputStream(fin)
+//        var myHash2 = HashMap<String, String>()
+//    val stendList =  ArrayList<StendBoxModel>()
+    val stendList2 = oin.readObject() as MutableList<StendBoxModel>
+//            var stendsNum = 0
+   // bordersList.clear()
+    stendList2.forEach {//цикл по экспонатам, чтобы добавить границу в массив
+        if (it.type=="stend") {
+            bordersList.add(BorderStroke(2.dp, Color.Black))
+            it.itemsInStend!!.forEach { (t, u) ->
+                u.forEach {
+                    itemsAddedToStend.add(it.first)
+                }
+            }
+        }
+    }
+//            println("stends in file = $stendsNum")
+//            for (i in 0..< stendsNum){
+//                bordersList.add(BorderStroke(2.dp, Color.Black))
+//            }
+    //bordersList.add(BorderStroke(2.dp, Color.Black))
+//    stendList.addAll(stendList2)
+
+    println("stendList from file = ${stendList2.toList()}")
+    oin.close()
+    fin.close()
+    return stendList2
 }
 
 @Composable
@@ -207,8 +244,8 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
 //            }
             Window( //второе окно для увеличения изображения
                 onCloseRequest = {
-                    secondWindowShow = false
                     state.value = WindowState(WindowPlacement.Fullscreen)
+                    secondWindowShow = false
                 },
                 undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
                 alwaysOnTop = true,
@@ -224,8 +261,8 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
                 )
                 Button(
                     onClick = {
-                        secondWindowShow = false
                         state.value = WindowState(WindowPlacement.Fullscreen)
+                        secondWindowShow = false
                     }
                 ){
                     Text("Закрыть")
@@ -295,17 +332,20 @@ fun main() = application {
     }
 
     if (choice.value == 2) //для основного окна с музеем
+    {
+        loadingWindowIsVisible.value = false
         Window(
             onCloseRequest = ::exitApplication,
             //эти 3 строки нужны для фуллскрина без оконных кнопок
             undecorated = windowMode.contains("0"), //если в файле mode.txt первое число 0, то без оконных кнопок, иначе они будут, для отладки
-            alwaysOnTop = true,
+//            alwaysOnTop = true,
             resizable = false,
             state = stateMuseumWindow.value
 //        state = WindowState(WindowPlacement.Fullscreen)
         ) {
             App(stateMuseumWindow, curPath)
         }
+    }
 //    Runtime.getRuntime().exec("taskkill /F /IM explorer.exe") //для удаления проводника из запущенных программ
 //    ProcessBuilder("taskkill /F /IM explorer.exe")
 //        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
@@ -314,12 +354,17 @@ fun main() = application {
 //    secondWindow(::exitApplication)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DropdownDemo(
     itemsInitial: List<String>,
     fontSize: MutableState<TextUnit>,
+    mainMuseumState: MutableState<WindowState>,
+    stendList: MutableList<StendBoxModel>,
+    bordersList: SnapshotStateList<BorderStroke>,
+    itemsAddedToStend: SnapshotStateList<String>,
     onUpdate: (x: String) -> Unit
-) { //комбобокс для выбора компорта для подключения к Arduino
+) { //комбобокс для выбора экспоната в музее
     var expanded by remember { mutableStateOf(false) }
 //    val items = listOf("com1", "com2", "com3")
 //    val disabledValue = "B"
@@ -328,6 +373,12 @@ fun DropdownDemo(
         if (!items.contains(it)) items.add(it)
     }
     var selectedIndex by remember { mutableStateOf(-1) }
+    val museumMapWindowVisible = remember { mutableStateOf(false) }
+    MuseumMapWindow(museumMapWindowVisible, mainMuseumState, stendList, bordersList, itemsAddedToStend){
+        onUpdate(it)
+        selectedIndex = items.indexOf(it)
+    }
+
     Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)
         .height(IntrinsicSize.Min)
         .fillMaxWidth()
@@ -347,22 +398,34 @@ fun DropdownDemo(
                     expanded = true
                 })
             )
+            Button(
+                modifier = Modifier
+//                        .height(20.dp)
+                    .border(BorderStroke(2.dp, Color.White))
+                    .heightIn(max = 30.dp)
+                    .width(180.dp),
+                contentPadding = PaddingValues(all = 0.dp),
+                colors = ButtonDefaults.buttonColors(Color.DarkGray),
+                onClick = {
+                    museumMapWindowVisible.value = true
+                }
 
+            ){
+                Text("Карта музея...",color = Color.White, fontSize = 15.sp)
+            }
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
 //                .padding(all = 50.dp)
             ){
-                Button(
-                    onClick = {
-                        //todo сделать загрузку окна с текущей картой расположения экспонатов из itemsInStend.dat
-                    }
-
-                ){
-                    Text("Карта музея...")
-                }
-                Text("Шрифт: ")
+                Text(
+                    text = "Шрифт: ",
+                    modifier = Modifier
+                        .onClick {
+                            fontSize.value = 26.sp
+                        }
+                )
                 FontSizeButton("+"){
                     var size = fontSize.value.value
                     size++
@@ -391,7 +454,7 @@ fun DropdownDemo(
         ) {
             items.forEachIndexed { index, s -> //заполняем элементы выпадающего списка
                 DropdownMenuItem(
-                    onClick = { //обработка нажатия на порт
+                    onClick = { //обработка нажатия на элемент
                         selectedIndex = index
                         expanded = false
                         onUpdate(s)
@@ -409,6 +472,50 @@ fun DropdownDemo(
         }
     }
 }
+
+
+@Composable ///окно с картой музея
+private fun MuseumMapWindow(
+    mapWindowVisible: MutableState<Boolean>,
+    mainMuseumState: MutableState<WindowState>,
+    stendList: MutableList<StendBoxModel>,
+    bordersList: SnapshotStateList<BorderStroke>,
+    itemsAddedToStend: SnapshotStateList<String>,
+    onSelectItem: (x: String) -> Unit
+) {
+//    var stendList2 = remember {mutableStateListOf<StendBoxModel>()}
+    Window( //окно с экспонатами
+        resizable = true,
+        onCloseRequest = {
+            mapWindowVisible.value = false
+            mainMuseumState.value = WindowState(WindowPlacement.Fullscreen)
+        },
+        visible = mapWindowVisible.value,
+        state = WindowState(WindowPlacement.Maximized),
+        title  = "Карта музея",
+    ) {
+        LazyRow ( //центральный ряд с содержимым
+            horizontalArrangement = Arrangement.spacedBy(5.dp,Alignment.CenterHorizontally),
+            modifier = Modifier
+                .fillMaxSize()
+//                    .ho
+                .border(BorderStroke(2.dp, Color(0xff1e63b2)))
+//                    .border(BorderStroke(2.dp, Color(0xff00ff00)))
+                .padding(30.dp)
+        ) {
+            items(stendList) { model ->
+                StendBox(model = model, bordersList, mapWindowVisible, null, null, /*itemsInMuseum,*/ null, itemsAddedToStend, true){
+                    mapWindowVisible.value = false
+                    mainMuseumState.value = WindowState(WindowPlacement.Fullscreen)
+                    println("selected = $it")
+                    onSelectItem(it)
+                }
+//                println("stendbox items = ${model.itemsInStend}")
+            }
+        }
+    }
+}
+
 @Composable //ф-ия для создания кнопок изменения размера шрифта
 private fun FontSizeButton(s: String, onClick: () -> Unit) {
     Button(

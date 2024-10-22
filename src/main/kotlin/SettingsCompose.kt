@@ -173,7 +173,17 @@ fun SettingsWindow(
                     .padding(30.dp)
             ) {
                 items(stendList) { model ->
-                    StendBox(model = model, stendBordersList, dialogState, barForStendVisibility, rowValue, /*itemsInMuseum,*/ selectedItem, itemsAddedToStend)
+                    StendBox(
+                        model = model,
+                        stendBordersList,
+                        dialogState,
+                        barForStendVisibility,
+                        rowValue, /*itemsInMuseum,*/
+                        selectedItem,
+                        itemsAddedToStend,
+                    ){
+
+                    }
                     println("stendbox items = ${model.itemsInStend}")
                 }
             }

@@ -37,12 +37,12 @@ fun StendBox(
     model: StendBoxModel,
     stendBordersList: SnapshotStateList<BorderStroke>,
     dialogState: MutableState<Boolean>,
-    barForStendVisibility: MutableState<Boolean>,
-    rowValue: MutableState<String>,
-   //itemsInMuseum: MutableState<ItemsInStend?>, //todo проверять, есть ли там массив для стенда с нужным номером
-    selectedItem: MutableState<Pair<String, String>>,
-    itemsAddedToStend: SnapshotStateList<String>,
-    //itemsMap2: MutableMap<String, Set<String>>
+    barForStendVisibility: MutableState<Boolean>?,
+    rowValue: MutableState<String>?,
+    selectedItem: MutableState<Pair<String, String>>?,
+    itemsAddedToStend: SnapshotStateList<String>?,
+    inMuseum: Boolean = false,
+    onChooseItem: (x: String) -> Unit
 ){
 //    var borderForStend = remember{ mutableStateOf(BorderStroke(2.dp, Color.Black))}
     val windowSize = LocalWindowInfo.current.containerSize
@@ -58,8 +58,12 @@ fun StendBox(
                // .background(Color(0xffff0000))
                 .border(borderForStend)
                 .clickable{
-                    barForStendVisibility.value = true
-                    rowValue.value = model.shelvesNum.toString()
+                    if (barForStendVisibility != null) {
+                        barForStendVisibility.value = true
+                    }
+                    if (rowValue != null) {
+                        rowValue.value = model.shelvesNum.toString()
+                    }
                     println("stend left clicked")
                     stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                     for (i in stendBordersList.indices){
@@ -90,29 +94,39 @@ fun StendBox(
                         .clickable{
                             println("shelve $i clicked")
                             println("selectedItem = $selectedItem")
-                            if (selectedItem.value.first!=""){
-                                println("item is selected")
-                                dialogState.value = false
-                                if (model.itemsInStend?.get(i)==null){
-                                    println("no items in shelve")
-                                    model.itemsInStend?.set(i, ArrayList<Pair<String, String>>())
-                                    val arr = model.itemsInStend?.get(i)
-                                    arr!!.add(selectedItem.value)
-                                    model.itemsInStend?.set(i, arr)
-                                    itemsAddedToStend.add(selectedItem.value.first)
-                                    println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
-                                    selectedItem.value = Pair<String, String>("", "")
-                                } else {
-                                    println("there are ${model.itemsInStend?.get(i)?.size}")
-                                    val arr = model.itemsInStend?.get(i)
-                                    arr!!.add(selectedItem.value)
-                                    model.itemsInStend?.set(i, arr)
-                                    itemsAddedToStend.add(selectedItem.value.first)
-                                    println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
-                                    selectedItem.value = Pair<String, String>("", "")
-                                }
-                                dialogState.value = true
-                            } else  println("item is not selected")
+                            if (selectedItem != null) {
+                                if (selectedItem.value.first!=""){
+                                    println("item is selected")
+                                    dialogState.value = false
+                                    if (model.itemsInStend?.get(i)==null){
+                                        println("no items in shelve")
+                                        model.itemsInStend?.set(i, ArrayList<Pair<String, String>>())
+                                        val arr = model.itemsInStend?.get(i)
+                                        arr!!.add(selectedItem.value)
+                                        model.itemsInStend?.set(i, arr)
+                                        if (itemsAddedToStend != null) {
+                                            itemsAddedToStend.add(selectedItem.value.first)
+                                        }
+                                        if (itemsAddedToStend != null) {
+                                            println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
+                                        }
+                                        selectedItem.value = Pair<String, String>("", "")
+                                    } else {
+                                        println("there are ${model.itemsInStend?.get(i)?.size}")
+                                        val arr = model.itemsInStend?.get(i)
+                                        arr!!.add(selectedItem.value)
+                                        model.itemsInStend?.set(i, arr)
+                                        if (itemsAddedToStend != null) {
+                                            itemsAddedToStend.add(selectedItem.value.first)
+                                        }
+                                        if (itemsAddedToStend != null) {
+                                            println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
+                                        }
+                                        selectedItem.value = Pair<String, String>("", "")
+                                    }
+                                    dialogState.value = true
+                                } else  println("item is not selected")
+                            }
 
 //                            stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                         }
@@ -123,38 +137,57 @@ fun StendBox(
                         arraySize = model.itemsInStend!![i]!!.size
                     if (arraySize > 2) itemWidth = rowWidth.value / arraySize
                         model.itemsInStend?.get(i)?.forEach {
-                            if (itemsAddedToStend.contains(it.first)) {
-                                Column(
-                                    modifier = Modifier
-                                        .width(itemWidth.dp)
-                                )
-                                {
-//                                    makeItem(it, itemsAddedToStend)
-                                    Text(text = it.first)
-                                    Button(
-                                        onClick = {
-                                            println("remove ${it.first}")
-                                            itemsAddedToStend.remove(it.first)
-                                            println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
-                                            model.itemsInStend?.get(i)!!.remove(it) //todo попробовать преобразовать в функцию обратного вызова
-                                        },
+                            if (itemsAddedToStend != null) {
+                                if (itemsAddedToStend.contains(it.first)) {
+                                    Column(
                                         modifier = Modifier
-                                            .width(50.dp)
-                                    ) {
-                                        Text("x")
-                                    }
-
-                                    val itemImage = File(it.second)
-                                    val itemBitmap: ImageBitmap = remember(itemImage) {
-                                        loadImageBitmap(itemImage.inputStream())
-                                    }
-
-                                    Image(
-                                        painter = BitmapPainter(image = itemBitmap),
-                                        contentDescription = "", //можно вставить описание изображения
-                                        contentScale = ContentScale.Fit, //параметры масштабирования изображения
-//                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+                                            .width(itemWidth.dp)
                                     )
+                                    {
+                        //                                    makeItem(it, itemsAddedToStend)
+                                        Text(text = it.first)
+                                        if (!inMuseum){
+                                            Button(
+                                                onClick = {
+                                                    println("remove ${it.first}")
+                                                    itemsAddedToStend.remove(it.first)
+                                                    println("itemsAddedToStend = ${itemsAddedToStend.toList()}")
+                                                    model.itemsInStend?.get(i)!!
+                                                        .remove(it)
+                                                },
+                                                modifier = Modifier
+                                                    .width(50.dp)
+                                            ) {
+                                                Text("x")
+                                            }
+                                        }
+
+                                        val itemImage = File(it.second)
+                                        val itemBitmap: ImageBitmap = remember(itemImage) {
+                                            loadImageBitmap(itemImage.inputStream())
+                                        }
+
+                                        if (!inMuseum) { //если находимся в режиме Настройки
+                                            Image(
+                                                    painter = BitmapPainter(image = itemBitmap),
+                                                    contentDescription = "", //можно вставить описание изображения
+                                                    contentScale = ContentScale.Fit, //параметры масштабирования изображения
+                                                    //                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+                                                )
+                                        } else { //если в режиме Музея
+                                            Image(
+                                                painter = BitmapPainter(image = itemBitmap),
+                                                contentDescription = "", //можно вставить описание изображения
+                                                contentScale = ContentScale.Fit, //параметры масштабирования изображения
+                                                //                        contentScale = ContentScale.Inside, //параметры масштабирования изображения
+                                                modifier = Modifier
+                                                    .clickable {
+                                                        println("item clicked on map = ${it.first}")
+                                                        onChooseItem(it.first)
+                                                    }
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
