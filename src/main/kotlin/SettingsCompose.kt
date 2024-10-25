@@ -14,7 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import java.io.*
+import java.util.*
 import javax.swing.JFileChooser
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 //import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 
@@ -133,7 +136,15 @@ fun SettingsWindow(
                         }
                         fileChooser.showOpenDialog(window /* OR null */)
                         directoryName.value = fileChooser.selectedFile.path
-                        println("folder = ${directoryName.value}")
+                        val FOLDER_NAME = fileChooser.selectedFile.name
+                        val folderNamePath = "$curPath/folderName.properties"
+                        val props = Properties()
+                        props.setProperty("itemsFolder", FOLDER_NAME)
+                        val f = File(folderNamePath)
+                        val out: OutputStream = FileOutputStream(f)
+                        props.store(out, "folder properties")
+
+                        println("folder = ${directoryName.value}\n FOLDER_NAME = $FOLDER_NAME")
                         val itemsList = listDirsUsingDirectoryStream(directoryName.value)
                         val itemsDir = directoryName.value
                         println("items list = $itemsList")

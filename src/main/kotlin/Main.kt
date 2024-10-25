@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
 import java.io.*
+import java.util.*
 
 //import java.io.File
 
@@ -30,7 +31,14 @@ fun App(state: MutableState<WindowState>, curPath: String) {
     val backgroundImage = "items/background.jpg"
     println("user dir = $curPath")
     var filesSet = remember { mutableStateListOf("$curPath/welcome.txt", "$curPath/$backgroundImage") }
-    val itemsDir = "$curPath/items/copy_Rarit"
+    val appProps = Properties()
+    val folderNamePath = "$curPath/folderName.properties"
+    appProps.load(FileInputStream(folderNamePath))
+    println("props = ${appProps.entries}")
+    val itemsFolderName = appProps.getProperty("itemsFolder")
+    val itemsDir = "$curPath/items/$itemsFolderName"
+
+//    val itemsDir = "$curPath/items/copy_Rarit"
     val dirsList = listDirsUsingDirectoryStream(itemsDir)
     println("dirsList = $dirsList")
     //var setOfItems =
