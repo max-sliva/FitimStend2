@@ -81,7 +81,7 @@ fun App(state: MutableState<WindowState>, curPath: String) {
 //                TopAppBar(title = {
         Column(Modifier.fillMaxSize()) {
             UpperBar(nvsuLogoWhite, facultyLogoWhite)
-            DropdownDemo(itemsMap2.keys.toList(), fontSize, state, stendList, stendBordersList, itemsAddedToStend) {
+            DropdownDemo(itemsMap2.keys.toList(), fontSize, state, stendList, stendBordersList, itemsAddedToStend, state) {
                 println("selected = $it")
                 val tempList = itemsMap2[it]?.toList()
                 filesSet.clear()
@@ -257,6 +257,7 @@ fun MyContent(filesSet: SnapshotStateList<String>, fontSize: MutableState<TextUn
                 },
                 undecorated = true, //эти 3 строки нужны для фуллскрина без оконных кнопок
                 alwaysOnTop = true,
+                resizable = false,
                 state = WindowState(WindowPlacement.Fullscreen),
                 title = " Window Example"
             ){
@@ -371,6 +372,7 @@ fun DropdownDemo(
     stendList: MutableList<StendBoxModel>,
     bordersList: SnapshotStateList<BorderStroke>,
     itemsAddedToStend: SnapshotStateList<String>,
+    state: MutableState<WindowState>,
     onUpdate: (x: String) -> Unit
 ) { //комбобокс для выбора экспоната в музее
     var expanded by remember { mutableStateOf(false) }
@@ -382,7 +384,7 @@ fun DropdownDemo(
     }
     var selectedIndex by remember { mutableStateOf(-1) }
     val museumMapWindowVisible = remember { mutableStateOf(false) }
-    MuseumMapWindow(museumMapWindowVisible, mainMuseumState, stendList, bordersList, itemsAddedToStend){
+    MuseumMapWindow(museumMapWindowVisible, mainMuseumState, stendList, bordersList, itemsAddedToStend, state){
         onUpdate(it)
         selectedIndex = items.indexOf(it)
     }
@@ -489,11 +491,14 @@ private fun MuseumMapWindow(
     stendList: MutableList<StendBoxModel>,
     bordersList: SnapshotStateList<BorderStroke>,
     itemsAddedToStend: SnapshotStateList<String>,
+    state: MutableState<WindowState>,
     onSelectItem: (x: String) -> Unit
 ) {
 //    var stendList2 = remember {mutableStateListOf<StendBoxModel>()}
     Window( //окно с экспонатами
-        resizable = true,
+        resizable = false,
+        undecorated = true, //если в файле mode.txt первое число 0, то без оконных кнопок, иначе они будут, для отладки
+//            alwaysOnTop = true,
         onCloseRequest = {
             mapWindowVisible.value = false
             mainMuseumState.value = WindowState(WindowPlacement.Fullscreen)
@@ -502,6 +507,14 @@ private fun MuseumMapWindow(
         state = WindowState(WindowPlacement.Maximized),
         title  = "Карта музея",
     ) {
+        Button(
+            onClick = {
+                state.value = WindowState(WindowPlacement.Fullscreen)
+                mapWindowVisible.value = false
+            }
+        ){
+            Text("Закрыть")
+        }
         LazyRow ( //центральный ряд с содержимым
             horizontalArrangement = Arrangement.spacedBy(5.dp,Alignment.CenterHorizontally),
             modifier = Modifier
