@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.unit.dp
+import com.sun.jdi.IntegerValue
 import java.io.File
 import java.io.Serializable
 
@@ -84,12 +85,14 @@ fun StendBox(
             }
             Text("stend, items = $shelveItemsNum  ")
             var rowWidth =  mutableStateOf( windowSize.width / 2 - 350)
-            for (i in 0..< model.shelvesNum) {
+//            for (i in 0..< model.shelvesNum) {
+            for (i in 0..< rowValue!!.value.toInt()) {
                 Row(
                     modifier = Modifier
                         .border(BorderStroke(2.dp, Color.Blue))
                          //  .fillMaxSize()
-                        .height(200.dp)
+//                        .height(200.dp)
+                        .height(((windowSize.height-250) / rowValue.value.toInt()).dp)
                         .width(rowWidth.value.dp)
                         .clickable{
                             println("shelve $i clicked")

@@ -2,6 +2,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import java.io.*
@@ -40,7 +42,7 @@ fun SettingsWindow(
     var itemsMap2 = remember {mutableMapOf<String, Set<String>>() }//мап для хранения названия экспоната и набора из его описания и картинки
     val barForStendVisibility = remember { mutableStateOf(false) }
     val rowValue = remember { //объект для работы с текстом, для TextField
-        mutableStateOf("") //его начальное значение
+        mutableStateOf("4") //его начальное значение
     }
 //    var selectedItem = remember {mutableMapOf<String, Set<String>>() }
     var selectedItem =  mutableStateOf(Pair("", ""))
@@ -293,8 +295,11 @@ private fun BarForStend(barForStendVisibility: MutableState<Boolean>, rowValue: 
         TextField(
             value = rowValue.value,
             onValueChange = { newValue ->
-                rowValue.value = newValue
+                if (newValue!="") rowValue.value = newValue
+                println("row value = ${rowValue.value}")
             },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            modifier = Modifier.background(Color.White)
         )
     }
 }
