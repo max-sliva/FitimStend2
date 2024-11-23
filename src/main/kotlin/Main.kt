@@ -355,7 +355,7 @@ fun main() = application {
             App(stateMuseumWindow, curPath)
         }
     }
-//    Runtime.getRuntime().exec("taskkill /F /IM explorer.exe") //для удаления проводника из запущенных программ
+    //Runtime.getRuntime().exec("taskkill /F /IM explorer.exe") //для удаления проводника из запущенных программ
 //    ProcessBuilder("taskkill /F /IM explorer.exe")
 //        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
 //        .start()
@@ -525,7 +525,10 @@ private fun MuseumMapWindow(
                 .padding(30.dp)
         ) {
             items(stendList) { model ->
-                StendBox(model = model, bordersList, mapWindowVisible, null, null, /*itemsInMuseum,*/ null, itemsAddedToStend, true){
+                val rowValue = remember { //объект для работы с текстом, для TextField
+                    mutableStateOf(model.shelvesNum.toString()) //его начальное значение
+                }
+                StendBox(model = model, bordersList, mapWindowVisible, null, rowValue, /*itemsInMuseum,*/ null, itemsAddedToStend, true){
                     mapWindowVisible.value = false
                     mainMuseumState.value = WindowState(WindowPlacement.Fullscreen)
                     println("selected = $it")

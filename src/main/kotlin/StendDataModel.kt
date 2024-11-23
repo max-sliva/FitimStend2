@@ -62,9 +62,9 @@ fun StendBox(
                     if (barForStendVisibility != null) {
                         barForStendVisibility.value = true
                     }
-                    if (rowValue != null) {
-                        rowValue.value = model.shelvesNum.toString()
-                    }
+//                    if (rowValue != null) {
+//                        rowValue.value = model.shelvesNum.toString()
+//                    }
                     println("stend left clicked")
                     stendBordersList[model.borderNumber] = BorderStroke(15.dp, Color.Yellow)
                     for (i in stendBordersList.indices){
@@ -86,6 +86,7 @@ fun StendBox(
             Text("stend, items = $shelveItemsNum  ")
             var rowWidth =  mutableStateOf( windowSize.width / 2 - 350)
 //            for (i in 0..< model.shelvesNum) {
+            println("rowValue = $rowValue")
             for (i in 0..< rowValue!!.value.toInt()) {
                 Row(
                     modifier = Modifier

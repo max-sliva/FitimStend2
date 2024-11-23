@@ -114,7 +114,7 @@ fun SettingsWindow(
 
             ) {
                 ControlBar(stendsAddedNum, compAddedNum, stendList, stendBordersList, itemsAddedToStend)
-                BarForStend(barForStendVisibility,rowValue)
+                BarForStend(barForStendVisibility,rowValue) //todo разобраться, можно ли сделать разное кол-во полок для стендов
 //                println("window height = $")
             }
             Row(// ряд с кнопкой загрузки экспонатов
